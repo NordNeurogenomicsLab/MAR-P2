@@ -1,0 +1,1461 @@
+---
+title: "MAR P2"
+subtitle: |
+  []() 
+ 
+author: |
+  | Data analysis by:
+  | Karol Cichewicz, kcichewicz@ucdavis.edu
+  Raw data available at [GSEXXXXXX]()
+
+output:
+  html_document:
+    code_folding: hide
+    css: style.css
+    theme: spacelab
+    toc: true
+    toc_depth: 4
+    toc_float: true
+urlcolor: blue
+---
+
+```{r, message=FALSE, warning = FALSE, error=FALSE, echo=TRUE, cache=FALSE}
+
+# Directory structure
+github_dir <- file.path("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2")
+
+setwd(github_dir)
+
+
+# Global R markdown code chunk options
+knitr::opts_chunk$set(message=FALSE, 
+                      warning = FALSE, 
+                      error=FALSE, 
+                      echo=TRUE, 
+                      cache=TRUE, 
+                      fig.width = 7, fig.height = 6, 
+                      fig.align = 'left')
+
+```
+
+# 1. Data pre-processing and QC
+
+## 1.1 fastq file location
+
+Fastq files were downloaded to:     
+/share/nordlab/rawdata/MAA/RNAseq/PoolA     
+/share/nordlab/rawdata/MAA/RNAseq/PoolB     
+/share/nordlab/rawdata/MAA/RNAseq/PoolA/Data/iwnsyj6ovo/Unaligned/Project_ANKC_L2_H2026P_CichewiczA$     
+/share/nordlab/rawdata/MAA/RNAseq/PoolB/Data/68xqoqvb4/Unaligned/Project_ANKC_L3_H2026P_CichewiczB$    
+
+Scripts for downloading the data:     
+wget -r -nH -nc -R index.html* http://slimsdata.genomecenter.ucdavis.edu/Data/iwnsyj6ovo/Unaligned/     
+wget -r -nH -nc -R index.html* http://slimsdata.genomecenter.ucdavis.edu/Data/68xqoqvb4/Unaligned
+
+
+All fastq files were then copied to /share/nordlab/users/kcichewicz/MAA/data/fastq/
+
+
+## 1.2 Read QC using FastQC
+
+```{bash, eval = FALSE}
+ #!/bin/sh
+ #SBATCH --job-name=cp_data
+ #SBATCH --time=02:00:00
+ #SBATCH --mem=16000
+ #SBATCH --ntasks=8
+
+/share/nordlab/users/kcichewicz/bin/FastQC/fastqc \
+--threads 8 \
+--outdir /share/nordlab/users/kcichewicz/MAA/fastqc \
+/share/nordlab/users/kcichewicz/MAA/data/fastq/*fastq.gz
+```
+
+```{bash, eval = FALSE}
+# Output files were copied to the Google drive: 
+scp -r kcichewicz@barbera.genomecenter.ucdavis.edu:/share/nordlab/users/kcichewicz/MAA/fastqc/* /mnt/G_drive/Nord\ Lab
+\ -\ Personal\ Folders/Karol/MAA\,\ new\ libraries/Data\ analysis/FastQC/
+
+```
+
+
+### 1.2.1 FastQC reports
+
+[1_R1_FastQC_report](./fastQC/1_S2_L002_R1_001_fastqc.html)
+[1_R2_FastQC_report](./fastQC/1_S2_L002_R2_001_fastqc.html)
+
+[2_R1_FastQC_report](./fastQC/2_S10_L003_R1_001_fastqc.html)
+[2_R2_FastQC_report](./fastQC/2_S10_L003_R2_001_fastqc.html)
+
+[3_R1_FastQC_report](./fastQC/3_S3_L002_R1_001_fastqc.html)
+[3_R2_FastQC_report](./fastQC/3_S3_L002_R2_001_fastqc.html)
+
+[4_R1_FastQC_report](./fastQC/4_S4_L002_R1_001_fastqc.html)
+[4_R2_FastQC_report](./fastQC/4_S4_L002_R2_001_fastqc.html)
+
+[5_R1_FastQC_report](./fastQC/5_S11_L003_R1_001_fastqc.html)
+[5_R2_FastQC_report](./fastQC/5_S11_L003_R2_001_fastqc.html)
+
+[6_R1_FastQC_report](./fastQC/6_S12_L003_R1_001_fastqc.html)
+[6_R2_FastQC_report](./fastQC/6_S12_L003_R2_001_fastqc.html)
+
+[7_R1_FastQC_report](./fastQC/7_S13_L003_R1_001_fastqc.html)
+[7_R2_FastQC_report](./fastQC/7_S13_L003_R2_001_fastqc.html)
+
+[8_R1_FastQC_report](./fastQC/8_S5_L002_R1_001_fastqc.html)
+[8_R2_FastQC_report](./fastQC/8_S5_L002_R2_001_fastqc.html)
+
+[9_R1_FastQC_report](./fastQC/9_S14_L003_R1_001_fastqc.html)
+[9_R2_FastQC_report](./fastQC/9_S14_L003_R2_001_fastqc.html)
+
+[10_R1_FastQC_report](./fastQC/10_S6_L002_R1_001_fastqc.html)
+[10_R2_FastQC_report](./fastQC/10_S6_L002_R2_001_fastqc.html)
+
+[11_R1_FastQC_report](./fastQC/11_S7_L002_R1_001_fastqc.html)
+[11_R2_FastQC_report](./fastQC/11_S7_L002_R2_001_fastqc.html)
+
+[12_R1_FastQC_report](./fastQC/12_S8_L002_R1_001_fastqc.html)
+[12_R2_FastQC_report](./fastQC/12_S8_L002_R2_001_fastqc.html)
+
+[13_R1_FastQC_report](./fastQC/13_S15_L003_R1_001_fastqc.html)
+[13_R2_FastQC_report](./fastQC/13_S15_L003_R2_001_fastqc.html)
+
+[14_R1_FastQC_report](./fastQC/14_S9_L002_R1_001_fastqc.html)
+[14_R2_FastQC_report](./fastQC/14_S9_L002_R2_001_fastqc.html)
+
+[15_R1_FastQC_report](./fastQC/15_S16_L003_R1_001_fastqc.html)
+[15_R2_FastQC_report](./fastQC/15_S16_L003_R2_001_fastqc.html)
+
+
+
+## 1.3 Adaptor removal
+
+FastQC identified Illumina adaptor contamination beginning at bases 75bp, reaching 30% of the read content at 150 bp. The sequencing was 150 bp paired end (150PE). This is not unusual, especially in long PE reads. I trimmed off the adaptors using NGmerge, which uses a very clever approach for detecting overlapping reads, and trimming edges containing adaptor sequences. Method description can be found here: https://github.com/jsh58/NGmerge 
+
+```{bash, eval = FALSE}
+#NGmerge - this was run in a loop for files 1 to 15
+
+ #!/bin/sh
+ #SBATCH --job-name=cp_data
+ #SBATCH --time=30:00:00
+ #SBATCH --mem=16000
+ #SBATCH --ntasks=12
+
+/share/nordlab/users/kcichewicz/bin/NGmerge-master/NGmerge \
+-a \
+-u 41 \
+-n 12 \
+-1 /share/nordlab/users/kcichewicz/MAA/data/fastq/1_*R1*.fastq.gz \
+-2 /share/nordlab/users/kcichewicz/MAA/data/fastq/1_*R2*.fastq.gz \
+-o 1
+done
+```
+
+```{bash, eval = FALSE}
+
+#FastQC was rerun:
+
+ #!/bin/sh
+ #SBATCH --job-name=cp_data
+ #SBATCH --time=02:00:00
+ #SBATCH --mem=16000
+ #SBATCH --ntasks=15
+
+/share/nordlab/users/kcichewicz/bin/FastQC/fastqc \
+--threads 15 \
+--outdir /share/nordlab/users/kcichewicz/MAA/fastqc_NGmerge \
+/share/nordlab/users/kcichewicz/MAA/data/fastq_NGmerge/*fastq.gz
+```
+
+
+```{bash, eval = FALSE}
+Output files were copied as follows:
+scp -r kcichewicz@barbera.genomecenter.ucdavis.edu:/share/nordlab/users/kcichewicz/MAA/fastqc_NGmerge/* /mnt/G_drive/Nord\ Lab\ -\ Personal\ Folders/Karol/MAA\,\ new\ libraries/Data\ analysis/FastQC_NGmerge
+```
+
+
+### 1.3.1 FastQC reports after adaptor trimming 
+
+Sequence length distribution indicates reduced and variable read length.
+
+[1_R1_FastQC_trimmed_report](./fastQC_NGmerge/1_1_fastqc.html)
+[1_R2_FastQC_trimmed_report](./fastQC_NGmerge/1_2_fastqc.html)
+
+[2_R1_FastQC_trimmed_report](./fastQC_NGmerge/2_1_fastqc.html)
+[2_R2_FastQC_trimmed_report](./fastQC_NGmerge/2_2_fastqc.html)
+
+[3_R1_FastQC_trimmed_report](./fastQC_NGmerge/3_1_fastqc.html)
+[3_R2_FastQC_trimmed_report](./fastQC_NGmerge/3_2_fastqc.html)
+
+[4_R1_FastQC_trimmed_report](./fastQC_NGmerge/4_1_fastqc.html)
+[4_R2_FastQC_trimmed_report](./fastQC_NGmerge/4_2_fastqc.html)
+
+[5_R1_FastQC_trimmed_report](./fastQC_NGmerge/5_1_fastqc.html)
+[5_R2_FastQC_trimmed_report](./fastQC_NGmerge/5_2_fastqc.html)
+
+[6_R1_FastQC_trimmed_report](./fastQC_NGmerge/6_1_fastqc.html)
+[6_R2_FastQC_trimmed_report](./fastQC_NGmerge/6_2_fastqc.html)
+
+[7_R1_FastQC_trimmed_report](./fastQC_NGmerge/7_1_fastqc.html)
+[7_R2_FastQC_trimmed_report](./fastQC_NGmerge/7_2_fastqc.html)
+
+[8_R1_FastQC_trimmed_report](./fastQC_NGmerge/8_1_fastqc.html)
+[8_R2_FastQC_trimmed_report](./fastQC_NGmerge/8_2_fastqc.html)
+
+[9_R1_FastQC_trimmed_report](./fastQC_NGmerge/9_1_fastqc.html)
+[9_R2_FastQC_trimmed_report](./fastQC_NGmerge/9_2_fastqc.html)
+
+[10_R1_FastQC_trimmed_report](./fastQC_NGmerge/10_1_fastqc.html)
+[10_R2_FastQC_trimmed_report](./fastQC_NGmerge/10_2_fastqc.html)
+
+[11_R1_FastQC_trimmed_report](./fastQC_NGmerge/11_1_fastqc.html)
+[11_R2_FastQC_trimmed_report](./fastQC_NGmerge/11_2_fastqc.html)
+
+[12_R1_FastQC_trimmed_report](./fastQC_NGmerge/12_1_fastqc.html)
+[12_R2_FastQC_trimmed_report](./fastQC_NGmerge/12_2_fastqc.html)
+
+[13_R1_FastQC_trimmed_report](./fastQC_NGmerge/13_1_fastqc.html)
+[13_R2_FastQC_trimmed_report](./fastQC_NGmerge/13_2_fastqc.html)
+
+[14_R1_FastQC_trimmed_report](./fastQC_NGmerge/14_1_fastqc.html)
+[14_R2_FastQC_trimmed_report](./fastQC_NGmerge/14_2_fastqc.html)
+
+[15_R1_FastQC_trimmed_report](./fastQC_NGmerge/15_1_fastqc.html)
+[15_R2_FastQC_trimmed_report](./fastQC_NGmerge/15_2_fastqc.html)
+
+
+
+
+## 1.4 Alignment
+
+I'm using Ensembl Rnor_6.0 reference genome. This is the same genome as the one curated by the Illumina iGenomes. 
+
+```{bash, eval = FALSE}
+
+# STAR index prep:
+
+ #!/bin/sh
+ #SBATCH --job-name=STAR_index_gen
+ #SBATCH --time=02:00:00
+ #SBATCH --mem=64000
+ #SBATCH --ntasks=8
+
+/share/nordlab/users/kcichewicz/bin/STAR/source/STAR \
+--runMode genomeGenerate \
+--runThreadN 8 \
+--genomeDir /share/nordlab/users/kcichewicz/MAA/scripts/STAR_index/ \
+--genomeFastaFiles /share/nordlab/genomes/Rattus_norvegicus/Ensembl/Rnor_6.0/Sequence/WholeGenomeFasta/genome.fa \
+--sjdbGTFfile /share/nordlab/genomes/Rattus_norvegicus/Ensembl/Rnor_6.0/Annotation/Genes/genes_Ensembl_Rnor_6.gtf \
+--sjdbOverhang 149
+
+```
+
+
+```{bash, eval = FALSE}
+# Alignment
+
+ #!/bin/sh
+ #SBATCH --job-name=STAR_index_gen
+ #SBATCH --time=03:00:00
+ #SBATCH --mem=64000
+ #SBATCH --ntasks=16
+
+/share/nordlab/users/kcichewicz/bin/STAR/source/STAR \
+--runMode alignReads \
+--runThreadN 16 \
+--genomeDir /share/nordlab/users/kcichewicz/MAA/scripts/STAR_index/ \
+--readFilesCommand gunzip -c \
+--readFilesIn \
+/share/nordlab/users/kcichewicz/MAA/data/fastq_NGmerge/1_1.fastq.gz \
+/share/nordlab/users/kcichewicz/MAA/data/fastq_NGmerge/1_2.fastq.gz \
+--outSAMtype BAM SortedByCoordinate
+
+```
+
+
+### 1.4.1 Getting alignment stats 
+
+Alignment was inspected using the following scripts: 
+
+```{bash, eval = FALSE}
+less 1/Log.out | tail
+
+for i in {1..15};do echo ${i}; less BAMs/${i}/${i}_Log.out | tail -n 3; done | less > Log.out.combined.txt                             
+for i in {1..15};do echo ${i}; less BAMs/${i}/${i}_Log.final.out; done | less > Log.out.final.combined.txt
+
+```
+
+**A note about the effect of read trimming on the alignment**    
+I run a test alignment on sample #1 with fastq files that were not trimmed. The alignment rate of uniquely mapped reads dropped from 69.23% to 59.50%. Uniquely mapped read numbers were 22,792,149 vs 19,587,785, respectively. After trimming, the average mapped length was 280.27, compared to 288.28 (STAR sums the lengths of PE reads). This indicates that read trimming benefited the alignment.
+
+
+## 1.5 Sorting and indexing reads
+ 
+```{bash, eval = FALSE}
+
+#!/bin/sh
+ #SBATCH --job-name=STAR_index_gen
+ #SBATCH --time=03:00:00
+ #SBATCH --mem=64000
+ #SBATCH --ntasks=16
+
+sample=1
+
+/share/nordlab/users/kcichewicz/bin/samtools-1.10/samtools sort \
+-@ 16 \
+/share/nordlab/users/kcichewicz/MAA/UCSC_Rn_6_analysis/BAMs/${sample}/${sample}_Aligned.sortedByCoord.out.bam \
+-o /share/nordlab/users/kcichewicz/MAA/UCSC_Rn_6_analysis/sorted_BAMs/${sample}_sorted.bam
+
+/share/nordlab/users/kcichewicz/bin/samtools-1.10/samtools index \
+-@ 16 \
+/share/nordlab/users/kcichewicz/MAA/UCSC_Rn_6_analysis/sorted_BAMs/${sample}_sorted.bam
+
+```
+ 
+## 1.6 Counting reads per gene
+
+```{bash, eval = FALSE}
+
+ #!/bin/sh
+ #SBATCH --job-name=STAR_index_gen
+ #SBATCH --time=03:00:00
+ #SBATCH --mem=64000
+ #SBATCH --ntasks=16
+
+# This could have been run in a loop...
+/share/nordlab/users/kcichewicz/bin/subread-2.0.0-Linux-x86_64/bin/featureCounts \
+-a /share/nordlab/genomes/Rattus_norvegicus/Ensembl/Rnor_6.0/Annotation/Genes/genes.gtf \
+-o ./feature_counts_st_1.txt \
+-T 16 \
+-t exon \
+-g gene_id \
+-s 1 \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/1/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/2/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/3/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/4/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/5/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/6/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/7/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/8/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/9/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/10/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/11/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/12/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/13/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/14/Aligned.sortedByCoord.out.bam \
+/share/nordlab/users/kcichewicz/MAA/scripts/STAR_alignment/15/Aligned.sortedByCoord.out.bam
+
+```
+
+
+
+# 2. Post-alignment QC
+
+```{r, message=FALSE, error=FALSE, echo=TRUE, cache=FALSE}
+
+library(sva)
+library(RUVnormalize)
+library(pheatmap)
+library(edgeR)
+library(GenomicFeatures)
+library(mclust)
+library(parallel)
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+library(data.table)
+library(DT)
+library(RColorBrewer)
+library(knitr)
+library(ggrepel)
+library(gridExtra)
+library(grid)
+library(plyr)
+library(plotly)
+library(Hmisc)
+library(biomaRt)
+library(cowplot)
+
+```
+
+## 2.1 Data QC
+
+### 2.1.1 Stats from the alignment log
+
+* All samples have satisfactory sequencing depth.
+* Libraries have variable numbers of reads. This may be caused by imprecise pooling by the core. 
+
+```{r}
+
+#https://stackoverflow.com/questions/19252663/extracting-decimal-numbers-from-a-string
+
+Log <- readLines("Log.final.out.combined.txt")
+
+# Extracting lines with % of uniquely mapped reads 
+str <- Log[seq(11, 38*15, 38)]
+
+#Extracting numerical values of % of uniquely mapped reads  
+uniq_mapped_reads_frac <- as.numeric(regmatches(str,regexpr("[[:digit:]]+\\.[[:digit:]]+",str)))
+
+df1 <- data.frame(sample = c(1:15), 
+                 "metric" = rep("Uniquely mapped reads %", 15),
+                 "uniq_mapped_reads_frac" = uniq_mapped_reads_frac)
+
+p1 <- ggplot(df1, aes(x = sample, y = uniq_mapped_reads_frac))+
+        geom_bar(stat="identity")+
+        theme_bw()+
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 15))+
+        labs(x = "Sample", y = "Fraction of reads [%]")+
+        labs(title = "Uniquely mapped reads")+
+        theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+        theme(axis.text.x = element_text(size=14), text = element_text(size=14))+
+        coord_cartesian(xlim = c(1, 15))
+
+
+# Extracting lines with % multimapped reads 
+str <- Log[seq(26, 38*15, 38)]
+#str
+str_p <- as.numeric(regmatches(str,regexpr("[[:digit:]]+\\.[[:digit:]]+",str)))
+
+df2 <- data.frame(sample = c(1:15), 
+                 "metric" = rep("Reads mapped to multiple loci", 15),
+                 "Reads mapped to multiple loci" = str_p)
+
+p2 <- ggplot(df2, aes(x = sample, y = Reads.mapped.to.multiple.loci))+
+        geom_bar(stat="identity")+
+        theme_bw()+
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 15))+
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
+        labs(x = "Sample", y = "Fraction of reads [%]")+
+        labs(title = "Reads mapped to multiple loci")+
+        theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+        theme(axis.text.x = element_text(size=14), text = element_text(size=14))+
+        coord_cartesian(xlim = c(1, 15))
+
+
+
+#Numbers of input reads 
+str <- Log[seq(7, 38*15, 38)]
+str_p <- as.numeric(regmatches(str,regexpr("[[:digit:]]+",str)))
+
+df3 <- data.frame(sample = c(1:15), 
+                 "metric" = rep("Number_of_input_reads", 15),
+                 "Input reads" = str_p)
+
+p3 <- ggplot(df3, aes(x = sample, y = Input.reads/10^6))+
+        geom_bar(stat="identity")+
+        theme_bw()+
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 15))+
+        labs(x = "Sample", y = "Reads [millions]")+
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
+        labs(title = "Number of input reads")+
+        theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+        theme(axis.text.x = element_text(size=14), text = element_text(size=14))+
+        coord_cartesian(xlim = c(1, 15))
+
+# Number of uniquely mapped reads
+df4 <- data.frame("sample" = df1$sample,
+                  "Input.reads" = df3$Input.reads,
+                  "uniq_mapped_reads_frac" = df1$uniq_mapped_reads_frac
+                  )
+
+df4$uniq_mapped_reads <- df4$Input.reads * (df4$uniq_mapped_reads_frac / 100)
+
+
+p4 <- ggplot(df4, aes(x = sample, y = uniq_mapped_reads/10^6))+
+        geom_bar(stat="identity")+
+        theme_bw()+
+        scale_x_continuous(breaks = scales::pretty_breaks(n = 15))+
+        labs(x = "Sample", y = "Reads [millions]")+
+        scale_y_continuous(breaks = scales::pretty_breaks(n = 6))+
+        labs(title = "Number of uniquely mapped reads")+
+        theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+        theme(axis.text.x = element_text(size=14), text = element_text(size=14))+
+        coord_cartesian(xlim = c(1, 15))
+
+```
+
+```{r, fig.width=12, fig.height=10}
+
+plot_grid(p3, p4, p1, p2, labels = c('A', 'B', 'C', 'D'), label_size = 12, nrow = 2)
+
+```
+
+
+```{r, cache=TRUE, message=FALSE}
+
+### Generate Rn6 list of exon sizes 
+# Method description at: https://www.biostars.org/p/83901/
+
+txdb <- makeTxDbFromGFF("genes_Ensembl_Rnor_6.gtf", format="gtf") #The file is too big to be uploaded to GitHub. 
+exons.list.per.gene <- exonsBy(txdb, by="gene")
+
+# Parallelized, increasing the speed >2x on a 4-core (logical) machine. 
+# Use mclapply instead of parLapply if you use a Mac.
+cl <- makeCluster(detectCores())
+exonic.gene.sizes <- parallel::parLapply(cl, exons.list.per.gene,function(x){sum(width(reduce(x)))})
+stopCluster(cl)
+
+```
+
+
+```{r}
+count_data <- read.table("feature_counts.txt", header = TRUE)
+metadata <- read.csv("MAR_metadata.csv")
+
+colnames(metadata)[1] <- "Sample"
+colnames(count_data) <- c(colnames(count_data)[1:6], paste0("Sample","_", seq(1, 15, 1)))
+
+#head(count_data)
+
+#[1] snoRNA               lincRNA              miRNA               
+#[4] pseudogene           snRNA                processed_pseudogene
+#[7] protein_coding       rRNA                 misc_RNA            
+#[10] ribozyme            scaRNA               sRNA                
+#[13] Mt_tRNA             Mt_rRNA          
+
+#I'm not sure if this is necessary
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install("GenomicFeatures")
+#browseVignettes("GenomicFeatures")
+
+# This blog post explains a proper way to load and summarize a GTF file:
+#https://davetang.org/muse/2017/08/04/read-gtf-file-r/
+
+#setwd("G:/Shared drives/Nord Lab - Personal Folders/Karol/MAA, new libraries/Data analysis/Ensembl_Rn6_analysis")
+
+#install.packages("refGenome") - doesn't work anymore
+# installed manually from https://cran.r-project.org/src/contrib/Archive/refGenome/  :/
+library(refGenome)
+
+# create ensemblGenome object for storing Ensembl genomic annotation data
+ens <- ensemblGenome()
+
+# read GTF file into ensemblGenome object
+read.gtf(ens, "genes_Ensembl_Rnor_6.gtf")
+
+#tableFeatures(ens)
+my_gene <- getGenePositions(ens) # dataframe with corresponding gene_id, gene_name, and other annotations
+
+#Gene_ids in the GTF file and count file overlap
+#head(my_gene)
+#head(count_data)
+
+#length(my_gene$gene_id)
+#length(unique(my_gene$gene_id))
+
+#length(count_data$Geneid)
+#length(unique(count_data$Geneid))
+
+#setdiff(my_gene$gene_id, count_data$Geneid)
+
+#Merge short gene names with count_data
+
+count_data2 <- merge(my_gene[,c(2,3)], count_data, by.x = "gene_id", by.y = "Geneid", all = T)
+#head(count_data2)
+
+count_data3 <- count_data2[,c(1,2, 7:22)] 
+
+```
+
+### 2.1.2 Metadata
+```{r}
+datatable(arrange(metadata[,c(1:6)], Sample), rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+```
+
+
+### 2.1.3 Sample sex assignment validation
+
+* There is no "Xist" gene annotation in the Ensembl database. I used ENSRNOG00000051257 gene id instead, which is a homolog of Xist.
+
+* Expression counts of this marker gene matche sample metadata
+
+```{r, fig.width=6, fig.height=6}
+
+#There is no "Xist" gene annotation in the Ensembl database.  
+#filter(count_data3, gene_name == "Xist")
+
+#I found the following info about the gene orthologs:
+
+# mouse Xist orthologs: https://www.ncbi.nlm.nih.gov/gene/213742/ortholog/?scope=39107
+# LOC100911498 - NCBI?
+# Ensembl Rn5: ENSRNOG00000051257.1: http://mar2015.archive.ensembl.org/Rattus_norvegicus/Gene/Summary?db=core;g=ENSRNOG00000051257;r=X:75138545-75143191
+# Ensembl RN6: http://uswest.ensembl.org/Rattus_norvegicus/Gene/Summary?db=core;g=ENSRNOG00000051257;r=X:74333329-74337975
+
+# This is a gene which is located within the homologous locus.
+
+df_xist <- reshape2::melt(filter(count_data3, gene_id == "ENSRNOG00000051257")[,c(4:18)])
+
+metadata <- arrange(metadata, Sample)
+colnames(df_xist) <-  c("Sample_name", "Xist_exp")
+df_xist <- data.frame(df_xist, metadata[,c(1:3)])
+df_xist <- arrange(df_xist, Xist_exp)
+
+#dplyr::filter(count_data3, gene_id == "ENSRNOG00000051257")     # Rn60_X_0752.3
+
+# It looks like a pretty good sex marker 
+knitr::kable(df_xist)
+
+ggplot(df_xist, aes(x = Sample, y = Xist_exp, color = Sex))+
+  geom_point(size = 2)+
+  theme_bw()+
+  labs(x= "Sample", y = "Gene expression [counts]")+
+  scale_x_continuous(breaks = c(1:15))+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+  labs(title = "Rn60_X_0752.3 sex marker expression")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))
+
+```
+
+### 2.1.4 Estimation of rRNA content
+
+* The amount of rRNA reads in the samples in very low, less than ~10000 reads per ~20 million mapped reads.
+
+
+Rn45s is a precoursor of 18S, 5.8S, and 28S rRNA in mouse. There is no Rn45s annotated in the Rat Ensembl genome.  I I found 5_8S_rRNA, 5S_rRNA, Rn5s, and Rn5-8s when I searched for genes annotated with rRNA biotype, each with multiple gene ids. I summed counts of these gene ids for each sample to estimate the content of each annotated rRNA. 
+
+```{r}
+
+#unique(my_gene$gene_biotype)
+
+#There is no Rn45s annotated in the Ensembl. Rn45s is a precoursor for 18S, 5.8S and 28S rRNA
+#unique(filter(my_gene, gene_biotype == "rRNA")$gene_name)
+
+rRNA_genes <- filter(my_gene, gene_biotype == "rRNA")
+
+#Lengths of these genes are very short. Rat Rn45s annotated at NCBI is ~12 kb long  
+#rRNA_genes$end - rRNA_genes$start
+
+#I'm using this gene subset only to assess if there may be any difference in rRNA content between samples, not how much rRNA is actually in these samples. I may need to look into the UCSC counts later.
+
+count_data3_rRNA <- filter(count_data3, gene_id %in% rRNA_genes$gene_id)
+
+count_data3_rRNA_m <- melt(count_data3_rRNA[,c(2, 4:18)])
+
+#Calculates sum of counts/each 
+DT<- data.table(count_data3_rRNA_m)
+  
+ p <- DT[,list(
+      Sum_of_rRNA_gene = as.numeric(sum(value))), by=c("gene_name", "variable")]
+ 
+ p$gene_name_sample <- paste0(p$gene_name, "_", p$variable)
+```  
+
+```{r, fig.width=12}
+
+ ggplot(p, aes(x = gene_name_sample, y = Sum_of_rRNA_gene, color = gene_name))+
+   geom_point(size = 3)+
+   theme_bw()+
+   theme(axis.text.x = element_text(angle = 90))+
+   labs(x = "", y = "Sum of rRNA gene counts")+
+   theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+   labs(title = "rRNA content estimation")+
+   theme(plot.title = element_text(size = rel(1.2), hjust=0.5))
+
+```
+
+### 2.1.5 Estimation of rRNA in UCSC align.
+
+* The rRNA content in the samples is minimal and does not affect their quantitative analysis.
+* Unlike Ensembl, UCSC has annotated Rn45s
+
+```{r}
+setwd(github_dir)
+
+count_data_UCSC <- read.table("feature_counts_no_st_UCSC.txt", header = TRUE)
+#head(count_data_UCSC)
+colnames(count_data_UCSC) <- c(colnames(count_data_UCSC)[1:6], paste0("Sample","_", 1:15))
+
+#UCSC alignment contains Rn45s 
+#filter(count_data_UCSC, Geneid == "Rn45s")
+
+#But it doesn't have Xist though
+#filter(count_data_UCSC, Geneid == "Xist")
+
+Rn45s_UCSC <- melt(filter(count_data_UCSC, Geneid == "Rn45s"))[2:16,]
+
+#Raw Rn45s counts
+p1 <- ggplot(Rn45s_UCSC, aes(x = variable, y = value))+
+  geom_point(size = 3)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(x = "", y = "Reads counts")+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+  labs(title = "Rn45s counts")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))
+
+
+#Rn45s read fraction
+#dim(count_data_UCSC)
+
+count_data_UCSC_not_Rn45s <- filter(count_data_UCSC, Geneid != "Rn45s")[,c(1, 7:21)]
+non_rRNA_counts <- melt(colSums(count_data_UCSC_not_Rn45s[,c(2:16)]))
+
+#dim(count_data_UCSC_not_Rn45s)
+
+
+df <- data.frame("Sample" = rownames(non_rRNA_counts), "non_rRNA_counts" = non_rRNA_counts$value, "Rn45s_counts" = Rn45s_UCSC$value)
+
+df$All_reads = df$non_rRNA_counts  + df$Rn45s_counts
+
+df$Rn45s_percentage <- (df$Rn45s_counts / df$non_rRNA_counts) * 100
+
+#FIxing the order
+df$Sample <- factor(df$Sample, levels = df$Sample)
+df <- arrange(df, Sample)
+
+
+#The number of Rn45s counts makes a tiny fraction of all reads demonstrating good performance of the ribosomal depletion.
+p2 <- ggplot(df, aes(x = Sample, y = Rn45s_percentage))+
+  geom_point(size = 3)+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90))+
+  labs(x = "", y = "Fraction of all reads [%]")+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+  labs(title = "Rn45s fraction of all reads ")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))
+```
+
+
+```{r, fig.width=12}
+
+plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, nrow = 1)
+
+```
+
+
+
+# 3. Dimensionality reduction plots
+
+**Summary:**     
+* There are no obvious outliers     
+* Sequencing lane (batch) does not separate samples     
+* Condition (Ctrl va MAR) does not have any dramatic effect on MDS clustering    
+* Sex divides samples along the PC1 axis    
+
+
+## 3.1 MDS 
+```{r}
+
+min.cpm.criteria <- 0.1 # really relaxed
+test.data <- count_data[, 7:21]
+rownames(test.data) <- count_data$Geneid
+
+#colnames(test.data) <- paste(sample.info$ExperimentalDesign, 1:102, sep = "_")
+test.samples <- 1:nrow(metadata)
+min.cpm <- min.cpm.criteria
+
+y <- DGEList(counts=test.data, group=metadata$Condition)
+keep <- rowSums(cpm(y)>min.cpm) >=2 #keeps only genes expressed in above min.cpm in at least 2 libraries in each group 
+y <- y[keep, , keep.lib.sizes=FALSE]
+y <- calcNormFactors(y) # Normalizes for RNA composition
+y <- estimateCommonDisp(y) # Estimates common dispersions. Calculates pseudo-counts, a type of normalized counts. Don't misteke them with 0+x type counts from other packages. Also "users are advised not to interpret the psuedo-counts as general-purpose normalized counts".
+y <- estimateTagwiseDisp(y) #Estimates dispersions. Applicable only to experiments with single factor.
+#Alternatively the two commands from above can be replaced with y <- estimateDisp(y)
+
+metadata <- arrange(metadata, Sample)
+
+#MDS plot using ggplot.
+MDS_data <- plotMDS(y, plot = FALSE)
+
+MDS_data2 <- data.frame(Leading_logFC_dim_1 = MDS_data$x, Leading_logFC_dim_2=MDS_data$y)
+
+MDS_data2 <- data.frame(Samples=rownames(MDS_data2), MDS_data2, metadata)
+rownames(MDS_data2) <- NULL
+
+point_size = 3
+
+# MDS Plot with colored DPC
+#Condition and sex
+MDS_Sex <- ggplot(MDS_data2, aes(x=Leading_logFC_dim_1, y=Leading_logFC_dim_2, colour=Condition, shape=Sex))+
+  geom_point(size=point_size, alpha=0.6)+
+  theme_bw()+
+  labs(title = "MDS plot")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+  theme(legend.position = "bottom")
+
+#Lane (batch)
+MDS_Lane <- ggplot(MDS_data2, aes(x=Leading_logFC_dim_1, y=Leading_logFC_dim_2, colour=as.factor(Lane)))+
+  geom_point(size=point_size, alpha=0.6)+
+  theme_bw()+
+  labs(title = "MDS plot")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+    theme(legend.position = "bottom")
+
+#RNA isolation batch
+MDS_RNA_batch <- ggplot(MDS_data2, aes(x=Leading_logFC_dim_1, y=Leading_logFC_dim_2, colour=as.factor(RNA.isolation.batch)))+
+  geom_point(size=point_size, alpha=0.6)+
+  theme_bw()+
+  labs(title = "MDS plot")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  theme(axis.text.x = element_text(size=12), text = element_text(size=12))+
+    theme(legend.position = "bottom")
+
+```
+
+```{r, fig.width=12}
+
+plot_grid(MDS_Sex, MDS_Lane, MDS_RNA_batch, labels = c('A', 'B', 'C'), label_size = 12, nrow = 1)
+
+```
+
+## 3.2 PCA - unfiltered counts
+```{r}
+
+pca_data <- prcomp(count_data[, 7:21], center = TRUE, scale = TRUE)
+
+pca_data_var_expl <- pca_data$sdev^2 / sum(pca_data$sdev^2)
+scree <- data.frame("PC" = paste0(seq(1:length(pca_data_var_expl))), "Var_exp" = pca_data_var_expl)
+
+pca_data <- as.data.frame(pca_data$rotation)
+
+pca_data$Sample <- rownames(pca_data)
+pca_data <- data.frame(metadata[,c(1:6)], pca_data)
+
+```
+
+### 3.2.1 Scree Plot
+```{r, fig.width=6, fig.height=6, fig.cap= "PC1 accounts for 99.6% of variation in the data"}
+
+ggplot(scree[1:5,], aes(x = PC, y = Var_exp))+
+  geom_bar(stat = "identity")+
+  scale_y_continuous(breaks=seq(0, 1, 0.1))+
+  theme_bw()+
+  labs(title = "Scree plot", x = "PC", y = "Variance explained")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+### 3.2.2 PCA plots
+```{r, fig.cap="Why sample 9 and 10 overlap with each other. "}
+
+p <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Condition, shape = Sex, label = Sample))+
+  geom_point(alpha = 0.7, size = 5)+
+  geom_text_repel()+
+  theme_bw()+
+  labs(title = "PC1 vs PC2")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+p
+
+```
+
+## 3.3 PCA - filtered RPKM data
+
+```{r}
+
+# Cleaning the dataset of genes with low reads. 
+# The same gene set is used for DE
+
+min.cpm.criteria <- 0.1 # really relaxed
+rownames(count_data) <- count_data$Geneid 
+test.data <- count_data[, 7:21]
+
+Condition <- ifelse(metadata$Condition == "Ctrl", 1, 2)
+Sex <- as.factor(ifelse(metadata$Sex == "M", 1, 2))
+
+y <- DGEList(counts=test.data, group=as.factor(Condition))
+
+keep <- rowSums(cpm(y)>min.cpm) >=2 #keeps only genes expressed in above min.cpm in at least 2 libraries in each group 
+
+kept_genes <- rownames(dplyr::filter(as.data.frame(keep), keep == TRUE))
+
+k <- count_data[, c(1,6, 7:21)]
+k <- dplyr::filter(k, Geneid %in% kept_genes)  # from 32545 to 19552
+
+
+rpkm.data <- rpkm(k[,c(3:17)], gene.length=k$Length, log=T, prior.count=.25)
+
+
+#PCA
+
+pca_data <- prcomp(rpkm.data, center = TRUE, scale = TRUE)
+
+pca_data_var_expl <- pca_data$sdev^2 / sum(pca_data$sdev^2)
+scree <- data.frame("PC" = paste0(seq(1:length(pca_data_var_expl))), "Var_exp" = pca_data_var_expl)
+
+pca_data <- as.data.frame(pca_data$rotation)
+
+pca_data$Sample <- rownames(pca_data)
+pca_data <- data.frame(metadata[,c(1:6)], pca_data)
+
+```
+
+### 3.3.1 Scree Plot
+```{r, fig.width=6, fig.height=6, fig.cap= "PC1 accounts for 94.8% of variation in the data"}
+
+ggplot(scree[1:5,], aes(x = PC, y = Var_exp))+
+  geom_bar(stat = "identity")+
+  scale_y_continuous(breaks=seq(0, 1, 0.1))+
+  theme_bw()+
+  labs(title = "Scree plot", x = "PC", y = "Variance explained")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+### 3.3.2 PCA plots
+```{r, fig.cap="Samples do not cluster based on sex and experimental condition or RNA batch isolation. PCs 3 - 10 do not separate samples based on sex (not shown)"}
+
+p1 <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Condition, shape = Sex, label = Sample))+
+  geom_point(alpha = 0.7, size = 5)+
+  geom_text_repel()+
+  theme_bw()+
+  labs(title = "PC1 vs PC2")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.position = "bottom")
+
+
+pca_data$RNA.isolation.batch <- as.factor(pca_data$RNA.isolation.batch)
+
+p2 <- ggplot(pca_data, aes(x = PC1, y = PC2, color = RNA.isolation.batch, label = Sample))+
+  geom_point(alpha = 0.7, size = 5)+
+  geom_text_repel()+
+  theme_bw()+
+  labs(title = "PC1 vs PC2")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.position = "bottom")
+
+plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12, nrow = 1)
+
+```
+
+
+# 4.0 Differential expression
+
+* Due to samples separation by sex in the MDS plots, I provided sex as a covariate to the model to regress its effects out. I'll explore the sex-specific effects separately. 
+
+```{r}
+
+design <- model.matrix(~as.factor(Condition))
+
+y <- y[keep, , keep.lib.sizes=FALSE]
+y <- estimateGLMCommonDisp(y,design)
+y <- estimateGLMTrendedDisp(y,design)
+y <- estimateGLMTagwiseDisp(y,design)
+fit <- glmFit(y,design) 
+lrt <- glmLRT(fit) # Genewise Negative Binomial Generalized Linear Models.
+
+glm.output <- topTags(lrt, n=Inf)
+#write.table(glm.output$table, "DE_Full_PolyIC.txt", sep="\t", col.names=T, row.names=T, quote=F)
+glm.output.full <- glm.output$table
+
+glm.output.full$gene_name <- rownames(glm.output.full)
+rownames(glm.output.full) <- NULL
+
+#dim(glm.output.full)
+#dim(my_gene)
+
+glm.output.full2 <- merge(glm.output.full, my_gene[,c(2,3)], by.x = "gene_name", by.y = "gene_id")
+glm.output.full3 <- glm.output.full2[,c(1, 7, 2:6)]
+colnames(glm.output.full3) <- c("gene_id", "gene_name", "logFC", "logCPM", "LR", "PValue", "FDR")
+glm.output.full_En <-  glm.output.full3
+
+```
+
+## 4.1 Numbers of DE genes
+
+```{r, fig.height = 6}
+
+up_P <- nrow(dplyr::filter(glm.output.full_En, PValue < 0.05, logFC > 0))
+down_P <- nrow(dplyr::filter(glm.output.full_En, PValue < 0.05, logFC < 0))
+
+up_FDR <- nrow(dplyr::filter(glm.output.full_En, FDR < 0.05, logFC > 0))
+down_FDR <- nrow(dplyr::filter(glm.output.full_En, FDR < 0.05, logFC < 0))
+
+DE_df_n <- data.frame("Upregulated" = c(up_P, up_FDR), 
+           "Downregulated" = c(down_P, down_FDR), 
+           "Stat" = c("P", "FDR"))
+
+DE_df_n_melted <- reshape2::melt(DE_df_n)
+DE_df_n_melted$Var_Stat <- paste0(DE_df_n_melted$variable, "_", DE_df_n_melted$Stat)
+
+
+p1 <- ggplot(DE_df_n_melted, aes(fill=Var_Stat, x=variable, group=variable, y=value))+
+  geom_bar(position = "dodge",  stat="identity", color="black")+
+  theme_bw()+
+  scale_fill_manual(values=c("#1F78B4", "#62a0ca", "#E31A1C", "#eb5e60"))+
+  theme(legend.title=element_blank())+
+  labs(title="Number of DE genes with P < 0.05 and FDR < 0.05", x="", y="")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  geom_text(aes(label=value), position=position_dodge(width=0.9), hjust= 1)+
+  coord_flip()+
+  scale_x_discrete(limits = rev(levels(DE_df_n_melted$variable)))+
+  theme(panel.border = element_blank(),
+        #legend.key = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(angle = 90, size = 14, face = "bold", 
+                                   hjust = 0.5, vjust = -4),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(legend.position="bottom")
+
+
+plot_grid(p1, labels = c('A'), label_size = 12, nrow = 1)
+
+```
+
+## 4.2 DE table
+
+```{r}
+
+datatable(arrange(glm.output.full_En, FDR), rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+```
+
+
+## 4.3 Volcano plot
+
+```{r, fig.cap=""}
+
+### Volcano plot,
+
+volcano_plot_text <- function(x, plot_title) {
+
+#x <- glm.output.full_En
+#plot_title <- "test"  
+  
+significance_threshold <- 0.05
+  
+#This is nicely dealing with datasets with missing cathegories.
+test <- ifelse(x$PValue, "Non significant", "")
+test <- ifelse(x$PValue <0.05, "PValue < 0.05", test)
+test <- ifelse(x$logFC > 1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC > 1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+
+plotDat <- data.frame(x, Group=test)
+
+p <- ggplot(plotDat, aes(x = logFC, y=-log10(PValue), fill=Group, col = Group)) +
+  geom_point(aes(text=gene_name, size=pop), alpha = 0.7, size=1)+
+  theme_light()+
+  scale_fill_manual(values=c("Non significant"="black", "PValue < 0.05"="orange", "logFC > abs(1)"="green4", "PValue < 0.05 & logFC > abs(1)"="red"))+
+  scale_color_manual(values=c("Non significant"="black", "PValue < 0.05"="orange", "logFC > abs(1)"="green4", "PValue < 0.05 & logFC > abs(1)"="red"))+
+  labs(title= plot_title)+
+  theme(plot.title = element_text(size = rel(2), hjust=0.5))+
+  theme(legend.text=element_text(size=16))+
+  theme(axis.text=element_text(size=14))+
+  theme(legend.title=element_blank())+
+  theme(axis.text=element_text(size=14))+
+  theme(axis.title = element_text(size=14, face = "bold"))+
+  theme(legend.position="bottom")
+  #scale_x_continuous(limits = c(-7.5, 7.5))
+
+p
+
+}
+
+p <- volcano_plot_text(glm.output.full_En, "DE analysis with Ensembl Rn6 genome")
+
+
+```
+
+```{r, fig.height = 6, fig.width = 12, fig.align = 'center', echo=TRUE, dev='png', cache=FALSE, fig.cap=""}
+
+ggplotly(p) %>%
+  layout(legend = list(
+      orientation = "h",y = -0.1
+    )
+  )
+
+#Numbers of DE genes
+#nrow(filter(glm.output.full_En, FDR < 0.05))
+
+# save.image("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2/Session.RData")
+```
+
+
+
+## 4.4 RPKM plots
+
+### 4.4.1 RPKM plots of MAR target genes
+```{r, fig.width=12}
+
+#Target antibody antigens in IDDRC grant
+# lactate dehydrogenase A and B, LDH-A, LDH-B
+# guanine deaminase (GDA)
+# stress-induced phosphoprotein 1 (STIP1)
+# collapsin response mediator proteins 1 and 2 (CRMP1, CRMP2)
+# Y-box binding protein 1 (YBX1)
+# neuron specific enolase (NSE)
+#"LDH-A, LDH-B, STIP1, and CRMP1 were noted as the primary antigens recognized by the ASD-specific MA"
+#"We then created the first truly representative animal model of MAR ASD by injecting mouse dams with peptides synthesized to contain epitopes for LDH A and B, STIP1 and CRMP1, epitopes that are recognized by women with antibodies to LDH A and B, STIP1, and CRMP1"
+
+#Analyzed samples were exposed to LDHA/B, CRMP1 and STIP1 autoantibodies.
+
+###  Ensembl  ###
+# Gene lengths 
+
+gene.lengths_En <- count_data$Length 
+#RPKM calculation
+gm_En <- as.matrix(count_data[,c(7:21)])
+rownames(gm_En) <- count_data$Geneid
+rpkm.data_En <- rpkm(gm_En, gene.length=gene.lengths_En, log=F)
+rpkm.data_En <- as.data.frame(rpkm.data_En)
+rpkm.data_En$gene_id <- rownames(rpkm.data_En)
+
+#This is a bit haphazard due to mixing ids. 
+rpkm.data_En2 <- merge(rpkm.data_En, my_gene[,c(2,3)],  by.x = "gene_id", by.y = "gene_id")
+#I can't have duplicated row names, so I'm replacing them with gene_ids.
+rpkm.data_En2$gene_name <- ifelse(duplicated(rpkm.data_En2$gene_name) == TRUE, as.character(rpkm.data_En2$gene_id), as.character(rpkm.data_En2$gene_name)) 
+
+rownames(rpkm.data_En2) <- rpkm.data_En2$gene_name
+rpkm.data_En2$gene_id <- NULL
+rpkm.data_En2$gene_name <- NULL
+rpkm.data_En2 <- as.matrix(rpkm.data_En2)
+
+
+### UCSC ###
+# Gene lengths 
+gene.lengths_UCSC <- count_data_UCSC$Length 
+#RPKM calculation
+gm_UCSC <- as.matrix(count_data_UCSC[,c(7:21)])
+rownames(gm_UCSC) <- count_data_UCSC$Geneid
+rpkm.data_UCSC <- rpkm(gm_UCSC, gene.length=gene.lengths_UCSC, log=F)
+
+
+# RPKM box #
+rpkm_box_plot <- function(d, x){
+#x <- "Vegfa"  
+  
+rpkm_test <- as.data.frame(reshape2::melt(d[x,]))
+colnames(rpkm_test) <- "RPKM"
+rpkm_test_w_info <- cbind(rpkm_test, "Condition" = metadata[,"Condition"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Sex" = metadata[,"Sex"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "RNA.isolation.batch" = metadata[,"RNA.isolation.batch"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Lane" = metadata[,"Lane"])
+
+j_brew_colors <- brewer.pal(n = 8, name = "Paired")[c(2,6)]
+
+ggplot(rpkm_test_w_info, aes(x = Condition, y= RPKM, colour=Condition))+
+  geom_point(size=2)+
+  geom_boxplot(alpha=0, position="identity")+
+  theme_bw()+
+  theme(axis.text.x=element_text(size=12, face="bold"))+
+  labs(title= x, x="")+
+  theme(plot.title = element_text(size = rel(2), hjust=0.5))+
+  scale_color_manual(values = j_brew_colors)+
+  scale_fill_manual(values = j_brew_colors)+
+  theme(legend.position = "bottom")
+
+}
+
+
+#LDH A and B, STIP1 and CRMP1
+
+#rpkm_box_plot(rpkm.data_En, "Ldha")
+
+pl <- lapply(c("Ldha", "Ldhb", "Stip1", "Crmp1"), function(x)
+       rpkm_box_plot(rpkm.data_En2, x))
+
+#ml <- marrangeGrob(pl, nrow=2, ncol=2, layout_matrix = rbind(c(1:2), c(3:4)), top=textGrob("Ensembl alignment", #gp=gpar(fontsize=20)))
+#ml
+
+plot_grid(pl[[1]], pl[[2]], pl[[3]], pl[[4]], labels = c('A', 'B', "C", "D"), label_size = 12, nrow = 1)
+
+```
+
+### 4.4.2 FDR < 0.05 genes
+
+#### Upregulated
+
+```{r, fig.width=12, fig.height=4*2, cache=TRUE}
+
+
+# RPKM box #
+rpkm_box_plot2 <- function(d, x){
+#x <- "Vegfa"  
+  
+rpkm_test <- as.data.frame(reshape2::melt(d[x,]))
+colnames(rpkm_test) <- "RPKM"
+rpkm_test_w_info <- cbind(rpkm_test, "Condition" = metadata[,"Condition"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Sex" = metadata[,"Sex"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "RNA.isolation.batch" = metadata[,"RNA.isolation.batch"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Lane" = metadata[,"Lane"])
+
+j_brew_colors <- brewer.pal(n = 8, name = "Paired")[c(2,6)]
+
+ggplot(rpkm_test_w_info, aes(x = Condition, y= RPKM, colour=Condition))+
+  geom_point(size=2)+
+  geom_boxplot(alpha=0, position="identity")+
+  theme_bw()+
+  theme(axis.text.x=element_text(size=12, face="bold"))+
+  labs(title= x, x="")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  scale_color_manual(values = j_brew_colors)+
+  scale_fill_manual(values = j_brew_colors)+
+  theme(legend.position = "none")
+
+}
+
+
+
+FDR_up <- dplyr::filter(glm.output.full_En, FDR < 0.05, logFC > 0)$gene_name
+
+pl <- lapply(FDR_up, function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+
+# Because it would have been too much to use a loop... 
+#plot_grid(pl[[1]], 
+#          pl[[2]],
+#          pl[[3]],
+#          pl[[4]],
+#          pl[[5]],
+#          pl[[6]],
+#          pl[[7]],
+#          pl[[8]],
+#          pl[[9]],
+#          pl[[10]],
+#          pl[[11]],
+#          pl[[12]],
+#          pl[[13]],
+#          label_size = 12, nrow = 2)
+
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
+
+```
+
+#### Downregulated
+
+```{r fig.height=4*4, fig.width=12, cache=TRUE}
+
+FDR_down <- dplyr::filter(glm.output.full_En, FDR < 0.05, logFC < 0)$gene_name
+
+pl <- lapply(FDR_down, function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+
+# Because it would have been too much to use a loop... 
+#plot_grid(pl[[1]], pl[[2]], pl[[3]], pl[[4]], pl[[5]], pl[[6]], pl[[7]], pl[[8]], pl[[9]], pl[[10]],
+#          pl[[11]], pl[[12]], pl[[13]], pl[[14]], pl[[15]], pl[[16]], pl[[17]], pl[[18]], pl[[19]], pl[[20]],
+#          pl[[21]], pl[[22]], pl[[23]], pl[[24]], pl[[25]], pl[[26]], pl[[27]], pl[[28]], pl[[29]], pl[[30]],
+#          pl[[31]], pl[[32]], pl[[33]],
+#          label_size = 12, nrow = 5)
+#
+
+ml <- marrangeGrob(pl, nrow=5, ncol = 7,  top = "")
+ml
+
+```
+
+# 5. Gene Ontology Enrichment
+
+Gene Ontology Biological Process Enrichment analysis for gene sets at P and FDR thresholds. 
+
+## 5.1 P < 0.05
+```{r topGO1, fig.cap="", cache=TRUE}
+# GO BP split
+GO_analysis <- function(q, b, c) {
+
+  #q <- glm.output.full_En
+  #b <- "upregulated"
+  #c = 4675
+  
+library(topGO)
+  background.genes <- q$gene_name
+  geneUniverse <- background.genes
+  
+  if(b=="upregulated"){
+  test.genes <- filter(q, PValue < 0.05, logFC > 0)$gene_name
+  } else if (b=="downregulated"){
+    test.genes <- filter(q, PValue < 0.05, logFC < 0)$gene_name
+  } else {
+    print("Incorect fold change parameter")
+    stop()
+  }
+
+  genesOfInterest <- test.genes
+  geneList <- factor(as.integer(geneUniverse %in% genesOfInterest))
+  names(geneList) <- geneUniverse
+  myGOdata <- new("topGOdata", description="My project", ontology="BP", allGenes=geneList,  annot=annFUN.org,    mapping="org.Rn.eg.db", ID = "alias", nodeSize=5)
+  print(myGOdata)
+  
+resultFisher <- runTest(myGOdata, algorithm = "weight01", statistic = "fisher")
+#resultKS <- runTest(myGOdata, algorithm = "classic", statistic = "ks")
+#resultKS.elim <- runTest(myGOdata, algorithm = "elim", statistic = "ks")
+#classicKS = resultKS, elimKS = resultKS.elim, - add later
+
+allRes <- GenTable(myGOdata, classicFisher = resultFisher, orderBy = "classicFisher", topNodes = c)
+
+#showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all')
+#nodes_plot <- recordPlot(showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all'))
+
+#Building a df of DE genes belonging to top 20 GO BP caegories
+DE_genes_in_top_GO_cat <- function(r){
+ fisher.go <- allRes[r,1]
+ #print(allRes[x,c(1,2)])
+ fisher.ann.genes <- genesInTerm(myGOdata, whichGO=fisher.go)
+ df <- data.frame(GO.ID = allRes[r,c(1)], Term = allRes[r,c(2)], gene_name=intersect(as.character(fisher.ann.genes[[1]]), q$gene_name))
+ df <- filter(df, gene_name %in% test.genes)
+ df
+}
+
+list(allRes, lapply(1:nrow(allRes), DE_genes_in_top_GO_cat))
+}
+
+### This was run mostly to test the algorithm. The P value threshold is too inclusive. ###
+
+#Lot's of neural GO terms
+GO_BP_up_En <- GO_analysis(glm.output.full_En, "upregulated", 4675)
+
+# GABA signaling, amine transport, dopamine!, 
+GO_BP_down_En <- GO_analysis(glm.output.full_En, "downregulated", 4675)
+
+```
+
+### 5.1.1 Upregulated
+```{r}
+
+input <- GO_BP_up_En
+
+df <- dplyr::filter(input[[1]], classicFisher < 0.05)
+input_DE_genes <- dplyr::filter(rbindlist(input[[2]]), GO.ID %in% df$GO.ID)
+
+# Calculate enrichment
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df <- arrange(df, -Enrichment)
+
+datatable(df, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
+
+datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+```
+
+### 5.1.2 Downregulated
+```{r}
+
+input <- GO_BP_down_En
+
+df <- dplyr::filter(input[[1]], classicFisher < 0.05)
+input_DE_genes <- dplyr::filter(rbindlist(input[[2]]), GO.ID %in% df$GO.ID)
+
+# Calculate enrichment
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df <- arrange(df, -Enrichment)
+
+datatable(df, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
+
+datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+```
+
+
+## 5.3 FDR < 0.2
+
+There are `r nrow(filter(glm.output.full_En, FDR < 0.2, logFC > 0))` FDR < 0.2 upregulated genes,   
+and `r nrow(filter(glm.output.full_En, FDR < 0.2, logFC < 0))` FDR < 0.2 downregulated genes.
+
+```{r topGO2, cache=TRUE}
+
+### I decided to settle on a more reasonable FDR < 0.2 ###
+#nrow(filter(glm.output.full_En, FDR < 0.2, logFC > 0)) #45
+#nrow(filter(glm.output.full_En, FDR < 0.2, logFC < 0)) #121
+
+GO_analysis_FDR_02 <- function(q, b, c) {
+
+  #q <- glm.output.full_UCSC
+  #b <- "upregulated"
+  
+library(topGO)
+  background.genes <- q$gene_name
+  geneUniverse <- background.genes
+  
+  if(b=="upregulated"){
+  test.genes <- filter(q, FDR < 0.2, logFC > 0)$gene_name
+  } else if (b=="downregulated"){
+    test.genes <- filter(q, FDR < 0.2, logFC < 0)$gene_name
+  } else {
+    print("Incorect fold change parameter")
+    stop()
+  }
+
+  genesOfInterest <- test.genes
+  geneList <- factor(as.integer(geneUniverse %in% genesOfInterest))
+  names(geneList) <- geneUniverse
+  myGOdata <- new("topGOdata", description="My project", ontology="BP", allGenes=geneList,  annot=annFUN.org,    mapping="org.Rn.eg.db", ID = "alias", nodeSize=5)
+  print(myGOdata)
+  
+resultFisher <- runTest(myGOdata, algorithm = "weight01", statistic = "fisher")
+#resultKS <- runTest(myGOdata, algorithm = "classic", statistic = "ks")
+#resultKS.elim <- runTest(myGOdata, algorithm = "elim", statistic = "ks")
+#classicKS = resultKS, elimKS = resultKS.elim, - add later
+
+allRes <- GenTable(myGOdata, classicFisher = resultFisher, orderBy = "classicFisher", topNodes = c)
+
+#showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all')
+#nodes_plot <- recordPlot(showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all'))
+
+#Building a df of DE genes belonging to top 20 GO BP caegories
+DE_genes_in_top_GO_cat <- function(r){
+ fisher.go <- allRes[r,1]
+ #print(allRes[x,c(1,2)])
+ fisher.ann.genes <- genesInTerm(myGOdata, whichGO=fisher.go)
+ df <- data.frame(GO.ID = allRes[r,c(1)], Term = allRes[r,c(2)], gene_name=intersect(as.character(fisher.ann.genes[[1]]), q$gene_name))
+ df <- filter(df, gene_name %in% test.genes)
+ df
+}
+
+list(allRes, lapply(1:20, DE_genes_in_top_GO_cat))
+}
+
+
+#
+GO_BP_up_En_FDR_02 <- GO_analysis_FDR_02(glm.output.full_En, "upregulated", 4675)
+GO_BP_down_En_FDR_02 <- GO_analysis_FDR_02(glm.output.full_En, "downregulated", 4675)
+
+
+```
+
+### 5.3.1 Upregulated
+```{r}
+
+input <- GO_BP_up_En_FDR_02
+
+df <- dplyr::filter(input[[1]], classicFisher < 0.05)
+input_DE_genes <- dplyr::filter(rbindlist(input[[2]]), GO.ID %in% df$GO.ID)
+
+# Calculate enrichment
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df <- arrange(df, -Enrichment)
+
+datatable(df, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
+
+datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+
+```
+
+
+### 5.3.2 Downregulated
+```{r}
+
+input <- GO_BP_down_En_FDR_02
+
+df <- dplyr::filter(input[[1]], classicFisher < 0.05)
+input_DE_genes <- dplyr::filter(rbindlist(input[[2]]), GO.ID %in% df$GO.ID)
+
+# Calculate enrichment
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df <- arrange(df, -Enrichment)
+
+datatable(df, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+
+input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
+
+datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+```
+
