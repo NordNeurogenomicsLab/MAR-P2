@@ -81,7 +81,7 @@ scp -r kcichewicz@barbera.genomecenter.ucdavis.edu:/share/nordlab/users/kcichewi
 
 ### 1.2.1 FastQC reports
 
-[1_R1_FastQC_report](./fastQC/1_S2_L002_R1_001_fastqc.html)
+[1_R1_FastQC_report](./fastQC/1_S2_L002_R1_001_fastqc.ht = )
 [1_R2_FastQC_report](./fastQC/1_S2_L002_R2_001_fastqc.html)
 
 [2_R1_FastQC_report](./fastQC/2_S10_L003_R1_001_fastqc.html)
@@ -1067,6 +1067,7 @@ ggplotly(p) %>%
 #nrow(filter(glm.output.full_En, FDR < 0.05))
 
 # save.image("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2/Session.RData")
+# load("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2/Session.RData")
 ```
 
 
@@ -1153,7 +1154,7 @@ ggplot(rpkm_test_w_info, aes(x = Condition, y= RPKM, colour=Condition))+
 pl <- lapply(c("Ldha", "Ldhb", "Stip1", "Crmp1"), function(x)
        rpkm_box_plot(rpkm.data_En2, x))
 
-#ml <- marrangeGrob(pl, nrow=2, ncol=2, layout_matrix = rbind(c(1:2), c(3:4)), top=textGrob("Ensembl alignment", #gp=gpar(fontsize=20)))
+#<- <- marrangeGrob(pl, nrow=2, ncol=2, layout_matrix = rbind(c(1:2), c(3:4)), top=textGrob("Ensembl alignment", #gp=gpar(fontsize=20)))
 #ml
 
 plot_grid(pl[[1]], pl[[2]], pl[[3]], pl[[4]], labels = c('A', 'B', "C", "D"), label_size = 12, nrow = 1)
@@ -1459,3 +1460,56 @@ input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
 datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
 ```
 
+## 5.4 RPKM plots of interesting genes
+
+### 5.4.1 Neuron projection guidance
+
+```{r, fig.width=12, fig.height=4*3}
+
+#GO:0097485
+
+pl <- lapply(c("Agrn", "Boc", "Cdh4", "Cntn2", "Crmp1", "Cxcr4", "Dpysl2", "Dpysl4", "Dpysl5", "Efna4", "Lhx2", "Ntng2", "Rtn4rl1", "Runx3", "Sema4c", "Smo", "Tgfb2", "Tubb3"), function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+
+ml <- marrangeGrob(pl, nrow=3, ncol = 7, top = "")
+ml
+
+```
+
+### 5.4.2 Cerebral cortex development
+
+```{r, fig.width=12, fig.height=4*2}
+
+#GO:0021987
+
+pl <- lapply(c("Cdon", "Eomes", "Fat4", "Lhx2", "Nr2e1", "Pou3f2", "Ptprs", "Smo", "Tfap2c"), function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
+
+
+```
+
+### 5.4.3 Positive regulation of NIK/NF-kappaB sig.
+
+```{r, fig.width=12, fig.height=4*1}
+
+pl <- lapply(c("Edar", "Ep300", "Grem1", "Hmgb1-ps3", "Irak1", "RGD1563668"), function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=1, ncol = 7, top = "")
+ml
+
+```
+
+### 5.4.4 Antigen processing and presentation
+
+```{r, fig.width=12, fig.height=4*1}
+
+pl <- lapply(c("RT1-A1", "RT1-CE16", "RT1-CE5", "RT1-T24-3"), function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=1, ncol = 7, top = "")
+ml
+
+
+```
