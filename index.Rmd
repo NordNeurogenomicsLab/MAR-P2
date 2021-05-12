@@ -1460,9 +1460,11 @@ input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
 datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
 ```
 
-## 5.4 RPKM plots of interesting genes
+# 6. RPKM plots of GO cat. genes
 
-### 5.4.1 Neuron projection guidance
+## 6.1 Upregulated
+
+### 6.1.1 Neuron projection guidance
 
 ```{r, fig.width=12, fig.height=4*3}
 
@@ -1476,7 +1478,7 @@ ml
 
 ```
 
-### 5.4.2 Cerebral cortex development
+### 6.1.2 Cerebral cortex development
 
 ```{r, fig.width=12, fig.height=4*2}
 
@@ -1491,7 +1493,7 @@ ml
 
 ```
 
-### 5.4.3 Positive regulation of NIK/NF-kappaB sig.
+### 6.1.3 Positive regulation of NIK/NF-kappaB
 
 ```{r, fig.width=12, fig.height=4*1}
 
@@ -1502,7 +1504,7 @@ ml
 
 ```
 
-### 5.4.4 Antigen processing and presentation
+### 6.1.4 Antigen processing and presentation
 
 ```{r, fig.width=12, fig.height=4*1}
 
@@ -1510,6 +1512,94 @@ pl <- lapply(c("RT1-A1", "RT1-CE16", "RT1-CE5", "RT1-T24-3"), function(x)
        rpkm_box_plot2(rpkm.data_En2, x))
 ml <- marrangeGrob(pl, nrow=1, ncol = 7, top = "")
 ml
+```
 
+## 6.2 Downregulated
+
+### 6.2.1 neuropeptide signaling pathway
+
+GO:0007218
+```{r, fig.width=12, fig.height=4*2}
+# GO:0007218
+
+pl <- lapply(c("Ecel1", "Galr1", "Gpr143", "Hcrtr1", "Mchr1", "Nmbr", "Nppa", "Ntsr2", "Oprd1", "Oprm1", "Penk", "Pgr15l", "Prlhr", "Prok2"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
+
+```
+
+
+### 6.2.2 cellular response to calcium
+
+GO:0071277
+```{r, fig.width=12, fig.height=4*3}
+# GO:0071277
+
+pl <- lapply(c("Cpne2", "Cpne4", "Cpne5", "Cpne8", "Cpne9", "Crhbp", "Dmtn", "Hspa5", "Spag16", "Syt12", "Syt13", "Syt15", "Syt17"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
+
+```
+
+
+### 6.2.3 regulation of glutamate secretion
+
+GO:0014048
+```{r, fig.width=12, fig.height=4*1}
+# GO:0014048
+
+pl <- lapply(c("Avp", "Dtnbp1", "Grm1", "Htr6", "Il1rn", "Snca", "Trh"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=1, ncol = 7, top = "")
+ml
+
+```
+
+
+### 6.2.4 adenylate cyclase-activating G protein-c
+
+GO:0007189
+```{r, fig.width=12, fig.height=4*3}
+# GO:0007189
+
+pl <- lapply(c("Adcy4", "Adgrg2", "Adgrg5", "Adra1d", "Calcr", "Chga", "Galr1", "Gnal", "Gpr101", "Htr4", "Htr7", "Mrap", "Mrap2", "Oprm1", "Rit2", "Ucn3"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=3, ncol = 7, top = "")
+ml
+
+```
+
+### 6.2.5 regulation of dopamine secretion
+
+GO:0014059
+```{r, fig.width=12, fig.height=4*2}
+# GO:0014059
+
+pl <- lapply(c("Dtnbp1", "Htr6", "Pcp4", "Snca", "Syt12", "Syt13", "Syt15", "Syt17"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
+
+```
+
+
+### 6.2.6 oligodendrocyte development
+
+GO:0014003
+```{r, fig.width=12, fig.height=4*2}
+# GO:0014003
+
+pl <- lapply(c("Cd9", "Gsn", "Hdac11", "Mag", "Plp1", "Shh", "Tcf7l2", "Tgfb1"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
+ml
 
 ```
