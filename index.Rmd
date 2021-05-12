@@ -1406,7 +1406,7 @@ DE_genes_in_top_GO_cat <- function(r){
  df
 }
 
-list(allRes, lapply(1:20, DE_genes_in_top_GO_cat))
+list(allRes, lapply(1:nrow(allRes), DE_genes_in_top_GO_cat))
 }
 
 
@@ -1460,13 +1460,14 @@ input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
 datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
 ```
 
+
 # 6. RPKM plots of GO cat. genes
 
 ## 6.1 Upregulated
 
 ### 6.1.1 Neuron projection guidance
 
-```{r, fig.width=12, fig.height=4*3}
+```{r, fig.width=12, fig.height=4*3, cache = TRUE}
 
 #GO:0097485
 
@@ -1480,7 +1481,7 @@ ml
 
 ### 6.1.2 Cerebral cortex development
 
-```{r, fig.width=12, fig.height=4*2}
+```{r, fig.width=12, fig.height=4*2, cache = TRUE}
 
 #GO:0021987
 
@@ -1495,7 +1496,7 @@ ml
 
 ### 6.1.3 Positive regulation of NIK/NF-kappaB
 
-```{r, fig.width=12, fig.height=4*1}
+```{r, fig.width=12, fig.height=4*1, cache = TRUE}
 
 pl <- lapply(c("Edar", "Ep300", "Grem1", "Hmgb1-ps3", "Irak1", "RGD1563668"), function(x)
        rpkm_box_plot2(rpkm.data_En2, x))
@@ -1506,7 +1507,7 @@ ml
 
 ### 6.1.4 Antigen processing and presentation
 
-```{r, fig.width=12, fig.height=4*1}
+```{r, fig.width=12, fig.height=4*1, cache = TRUE}
 
 pl <- lapply(c("RT1-A1", "RT1-CE16", "RT1-CE5", "RT1-T24-3"), function(x)
        rpkm_box_plot2(rpkm.data_En2, x))
@@ -1519,7 +1520,7 @@ ml
 ### 6.2.1 neuropeptide signaling pathway
 
 GO:0007218
-```{r, fig.width=12, fig.height=4*2}
+```{r, fig.width=12, fig.height=4*2, cache = TRUE}
 # GO:0007218
 
 pl <- lapply(c("Ecel1", "Galr1", "Gpr143", "Hcrtr1", "Mchr1", "Nmbr", "Nppa", "Ntsr2", "Oprd1", "Oprm1", "Penk", "Pgr15l", "Prlhr", "Prok2"), 
@@ -1534,7 +1535,7 @@ ml
 ### 6.2.2 cellular response to calcium
 
 GO:0071277
-```{r, fig.width=12, fig.height=4*3}
+```{r, fig.width=12, fig.height=4*3, cache = TRUE}
 # GO:0071277
 
 pl <- lapply(c("Cpne2", "Cpne4", "Cpne5", "Cpne8", "Cpne9", "Crhbp", "Dmtn", "Hspa5", "Spag16", "Syt12", "Syt13", "Syt15", "Syt17"), 
@@ -1549,7 +1550,7 @@ ml
 ### 6.2.3 regulation of glutamate secretion
 
 GO:0014048
-```{r, fig.width=12, fig.height=4*1}
+```{r, fig.width=12, fig.height=4*1, cache = TRUE}
 # GO:0014048
 
 pl <- lapply(c("Avp", "Dtnbp1", "Grm1", "Htr6", "Il1rn", "Snca", "Trh"), 
@@ -1564,7 +1565,7 @@ ml
 ### 6.2.4 adenylate cyclase-activating G protein-c
 
 GO:0007189
-```{r, fig.width=12, fig.height=4*3}
+```{r, fig.width=12, fig.height=4*3, cache = TRUE}
 # GO:0007189
 
 pl <- lapply(c("Adcy4", "Adgrg2", "Adgrg5", "Adra1d", "Calcr", "Chga", "Galr1", "Gnal", "Gpr101", "Htr4", "Htr7", "Mrap", "Mrap2", "Oprm1", "Rit2", "Ucn3"), 
@@ -1578,7 +1579,7 @@ ml
 ### 6.2.5 regulation of dopamine secretion
 
 GO:0014059
-```{r, fig.width=12, fig.height=4*2}
+```{r, fig.width=12, fig.height=4*2, cache = TRUE}
 # GO:0014059
 
 pl <- lapply(c("Dtnbp1", "Htr6", "Pcp4", "Snca", "Syt12", "Syt13", "Syt15", "Syt17"), 
@@ -1593,7 +1594,7 @@ ml
 ### 6.2.6 oligodendrocyte development
 
 GO:0014003
-```{r, fig.width=12, fig.height=4*2}
+```{r, fig.width=12, fig.height=4*2, cache = TRUE}
 # GO:0014003
 
 pl <- lapply(c("Cd9", "Gsn", "Hdac11", "Mag", "Plp1", "Shh", "Tcf7l2", "Tgfb1"), 
@@ -1603,3 +1604,97 @@ ml <- marrangeGrob(pl, nrow=2, ncol = 7, top = "")
 ml
 
 ```
+
+
+```{r}
+
+# Saving gene sets
+
+write(file = "P05_genes.txt", dplyr::filter(glm.output.full_En, PValue < 0.05)$gene_name)
+write(file = "P05_Up_genes.txt", dplyr::filter(glm.output.full_En, PValue < 0.05, logFC > 0)$gene_name)
+write(file = "P05_Down_genes.txt", dplyr::filter(glm.output.full_En, PValue < 0.05, logFC < 0)$gene_name)
+
+write(file = "FDR05_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.05)$gene_name)
+write(file = "FDR05_Up_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.05, logFC > 0)$gene_name)
+write(file = "FDR05_Down_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.05, logFC < 0)$gene_name)
+
+
+write(file = "FDR2_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.2)$gene_name)
+
+
+
+```
+
+
+# 7. STRING FDR < 0.2
+
+Settings:   
+* Gene set, FDR < 0.2 genes, n = 166   
+* Network type: full network   
+* Meaning of network edges: confidence   
+* Active interaction sources: Textmining, Experiments, Gene Fusion, Co-occurrence, Co-expression   
+* Minimum required interaction score: high confidence (0.700)   
+* Max number of interactions to show: no more than 10 interactors   
+
+```{r, eval=FALSE}
+
+# For some reason this does not color code the nodes correctly. But in case it's needed in the future, the SVG files is present in the repo.
+
+fig_svg<-cowplot::ggdraw()+cowplot::draw_image("STRING_db.svg")
+plot(fig_svg)
+
+```
+
+## 7.1 Network
+
+```{r, out.width = '75%', out.height = '75%'}
+
+knitr::include_graphics("STRING_db.png")
+
+#![](STRING_db.png)
+
+```
+
+
+## 7.2 Network stats and color legend
+
+```{r, out.width = '75%', out.height = '75%'}
+
+knitr::include_graphics("Network stats.JPG")
+
+#![](Network stats.PNG)
+
+```
+
+## 7.3 RPKM plots of the mitochondrial cluster
+
+```{r, fig.width=8, fig.height=4*1}
+
+pl <- lapply(c("Mt-co2", "Mt-nd4", "Mt-nd1", "Mt-nd5"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=1, ncol = 4, top = "")
+ml
+
+```
+
+## 7.4 RPKM plots of the neuronal differentiation cluster
+
+```{r, fig.width=8, fig.height=4*1}
+
+pl <- lapply(c("Cdon", "Shh", "Hspa5", "Calr", "Mapt"), 
+             function(x)
+       rpkm_box_plot2(rpkm.data_En2, x))
+ml <- marrangeGrob(pl, nrow=1, ncol = 5, top = "")
+ml
+
+```
+
+# 8. R sessionInfo()
+
+```{r}
+library(pander)
+
+pander(sessionInfo())
+```
+
