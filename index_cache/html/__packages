@@ -43,3 +43,8 @@ SparseM
 topGO
 org.Rn.eg.db
 pander
+RBGL
+reshape
+gtools
+xtable
+Vennerable
