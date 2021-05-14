@@ -2143,6 +2143,7 @@ ml
 ### 8.7.10 GO terms heatmap - Work in progress
 
 ```{r}
+library(pheatmap)
 
 m_up <- DE_M_GO_up_P_enr[[1]]
 f_up <- DE_F_GO_up_P_enr[[1]]
@@ -2152,7 +2153,7 @@ f_down <- DE_F_GO_down_P_enr[[1]]
 # Calculates enrichment
 enr <- function(df){
 
-padding = 5
+padding = 1
 df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
 df$GO.ID <- paste0(df$GO.ID, "_", df$Term)
 df
@@ -2183,7 +2184,9 @@ df <- merge(df1, df2) # Enrichment df 8966    5
 
 # Select significant GO terms
 
-sig_n = 10
+sig_n = 5
+
+# Open Enrichment direction, and loosen significance threshold. - check if you see blue color.
 
 t_m_up <- dplyr::filter(m_up, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
 t_f_up <- dplyr::filter(f_up, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
@@ -2197,37 +2200,64 @@ sig_terms <- unique(c(t_m_up, t_f_up, t_m_down, t_f_down))
 df_filtered <- dplyr::filter(df, GO.ID %in% sig_terms)
 
 #  
-
 rownames(df_filtered) <- df_filtered$GO.ID
 df_filtered$GO.ID <- NULL
 
-library(pheatmap)
+
+pheatmap(df_filtered)
+```
+
 
 # GO terms manual curation:
 
+```{r}
+
 terms <- c(
  "GO:0000165_MAPK cascade",                               
- "GO:0001505_regulation of neurotransmitter levels",      
- "GO:0001578_microtubule bundle formation",               
- #"GO:0002831_regulation of response to biotic stimulu...",
- #"GO:0003073_regulation of systemic arterial blood pr...",
- "GO:0006955_immune response",                            
- "GO:0007204_positive regulation of cytosolic calcium...",
- "GO:0007389_pattern specification process",              
- "GO:0007411_axon guidance",                              
-"GO:0009617_response to bacterium",                      
-"GO:0009749_response to glucose",                        
-"GO:0010469_regulation of signaling receptor activit...",
+ "GO:0001764_neuron migration",                           
+"GO:0006955_immune response",                            
+"GO:0007189_adenylate cyclase-activating G protein-c...",
+"GO:0007193_adenylate cyclase-inhibiting G protein-c...",
+"GO:0007200_phospholipase C-activating G protein-cou...",
+"GO:0007204_positive regulation of cytosolic calcium...",
+"GO:0007218_neuropeptide signaling pathway",             
+"GO:0007389_pattern specification process",              
+"GO:0007411_axon guidance",                              
+                     
+          
+"GO:0007611_learning or memory",                         
+                    
 "GO:0010976_positive regulation of neuron projection...",
-#"GO:0019233_sensory perception of pain",                 
+"GO:0014003_oligodendrocyte development",                
+"GO:0014059_regulation of dopamine secretion",           
+"GO:0017158_regulation of calcium ion-dependent exoc...",
+               
+"GO:0019722_calcium-mediated signaling",                
+                
+"GO:0022900_electron transport chain",                   
+"GO:0030433_ubiquitin-dependent ERAD pathway",           
+  
+"GO:0032496_response to lipopolysaccharide",             
+
+"GO:0033555_multicellular organismal response to str...",
 "GO:0042110_T cell activation",                          
+"GO:0042136_neurotransmitter biosynthetic process",      
+"GO:0042310_vasoconstriction",                           
 "GO:0042391_regulation of membrane potential",           
+"GO:0043410_positive regulation of MAPK cascade",        
 "GO:0043524_negative regulation of neuron apoptotic ...",
+"GO:0046928_regulation of neurotransmitter secretion",   
+"GO:0050867_positive regulation of cell activation",     
 "GO:0051384_response to glucocorticoid",                 
-"GO:0051924_regulation of calcium ion transport",        
 "GO:0055085_transmembrane transport",                    
+                         
+"GO:0060291_long-term synaptic potentiation",            
+               
+"GO:0071277_cellular response to calcium ion",           
 "GO:0097485_neuron projection guidance",                 
-"GO:1902679_negative regulation of RNA biosynthetic ..."
+"GO:1902476_chloride transmembrane transport",           
+"GO:1902679_negative regulation of RNA biosynthetic ...",
+"GO:1903305_regulation of regulated secretory pathwa..."
 )
 
 
@@ -2238,13 +2268,13 @@ myBreaks <- c(0,seq(max(x)/paletteLength, max(x), length.out=floor(paletteLength
 myColor <- colorRampPalette(c("#9E0041", "#FEBE6E", "white"))(paletteLength)
 
 # It's not printed out to increase the clarity of this report
-pheatmap(x, 
-         clustering_distance_rows="correlation", 
-         cluster_rows = T, 
-         cluster_cols = F, 
-         legend = T, 
-         fontsize_row  = 9, 
-         color = rev(myColor), main = "")
+GO_pheatmap <- pheatmap(x, 
+               clustering_distance_rows="correlation", 
+               cluster_rows = T, 
+               cluster_cols = F, 
+               legend = T, 
+               fontsize_row  = 9, 
+               color = rev(myColor), main = "GO enrichment among P<0.05 genes")
 
 
 ```
@@ -2253,7 +2283,9 @@ pheatmap(x,
 
 # 9. Conclusions and a summary figure
 
-```{r}
+```{r, eval=FALSE}
+
+# Remove this?
 
 # Volcano Plot
 
@@ -2292,7 +2324,11 @@ p
 }
 
 A <- volcano_plot_text(glm.output.full_En)
+```
 
+```{r, eval=FALSE}
+
+## Remove this??
 #################### Numbers of DE genes ############################
 
 
@@ -2329,19 +2365,163 @@ B <- ggplot(DE_df_n_melted, aes(fill=Var_Stat, x=variable, group=variable, y=val
         panel.grid.minor = element_blank())+
   theme(legend.position="bottom")
 
+```
+
+```{r}
+library(Vennerable)
+
+### Venn Diagram PValue ###
+area1 <- unique(dplyr::filter(DE_M, PValue < 0.05)$gene_name)
+area2 <- unique(dplyr::filter(DE_F, PValue < 0.05)$gene_name)  
+
+ll <- list(area1, area2)
+llv1 <- Venn(ll, SetNames = c("Males", "Females"))
+
+#plot(llv1, doWeights = TRUE)
 
 
+### Venn Diagram FDR ###
+area1 <- unique(dplyr::filter(DE_M, FDR < 0.05)$gene_name)
+area2 <- unique(dplyr::filter(DE_F, FDR < 0.05)$gene_name)  
 
-plot_grid(A, B, labels = c('A', 'B'))
+ll <- list(area1, area2)
+llv2 <- Venn(ll, SetNames = c("Males", "Females"))
+
+#plot(llv2, doWeights = TRUE)
+
+myplot1 <- function(){plot(llv1, doWeights = TRUE)}
+myplot2 <- function(){plot(llv2, doWeights = TRUE)}
+
+venn_P <- grid.grabExpr(myplot1())
+venn_FDR <- grid.grabExpr(myplot2())
+
+#venn_P <- grid.arrange(venn_P, top= "P < 0.05")
+#venn_FDR <- grid.arrange(venn_FDR, top= "FDR < 0.05")
+
+#grid.arrange(venn_P, venn_FDR, ncol=2) 
 
 ```
 
-* Differential expression is weak overall
-* There is no sample clustering in MDA or PCA
-* Females DE is slightly greater than males
-* Males vs Females DE is distinctively different - discuss this with Alex
-* GO BP...
-* 
+```{r}
+### Sex stratified DE ###
+
+up_P_M <- nrow(dplyr::filter(DE_M, PValue < 0.05, logFC > 0))
+down_P_M <- nrow(dplyr::filter(DE_M, PValue < 0.05, logFC < 0))
+
+up_FDR_M <- nrow(dplyr::filter(DE_M, FDR < 0.05, logFC > 0))
+down_FDR_M <- nrow(dplyr::filter(DE_M, FDR < 0.05, logFC < 0))
+
+up_P_F <- nrow(dplyr::filter(DE_F, PValue < 0.05, logFC > 0))
+down_P_F <- nrow(dplyr::filter(DE_F, PValue < 0.05, logFC < 0))
+
+up_FDR_F <- nrow(dplyr::filter(DE_F, FDR < 0.05, logFC > 0))
+down_FDR_F <- nrow(dplyr::filter(DE_F, FDR < 0.05, logFC < 0))
+
+DE_df_n <- data.frame("Up" = c(up_P_M, up_FDR_M, up_P_F, up_FDR_F), 
+           "Down" = c(down_P_M, down_FDR_M, down_P_F, down_FDR_F), 
+           "Stat" = c("P", "FDR", "P", "FDR"),
+           "Sex" = c("Male", "Male", "Female", "Female"))
+
+DE_df_n_melted <- reshape2::melt(DE_df_n)
+DE_df_n_melted$Stat <- ifelse(DE_df_n_melted$Stat == "P", "P < 0.05", "FDR < 0.05")
+DE_df_n_melted$Var_Stat <- paste0(DE_df_n_melted$variable, " ", DE_df_n_melted$Stat)
+
+# Apply faceting... It's way easier.
+
+Sex_ns <- ggplot(DE_df_n_melted, aes(fill=Var_Stat, x=variable, group=Sex, y=value))+
+  geom_bar(position = "dodge",  stat="identity", color="black")+
+  geom_text(aes(label=value), position=position_dodge(width=0.9), hjust= 0.5, vjust = -0.5)+
+  labs(title="", x="", y="Numbers of DE genes")+
+  theme_bw()+
+  facet_wrap(.~ Sex)+
+  scale_fill_manual(values=c("#1F78B4", "#62a0ca", "#E31A1C", "#eb5e60"))+
+  theme(legend.title=element_blank())+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  scale_x_discrete(limits = rev(levels(DE_df_n_melted$variable)))+
+  theme(legend.position="bottom",
+        axis.text.x = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+
+
+#Sex_ns 
+```
+  
+```{r}
+
+### Volcano plots Sex ### 
+
+### Volcano plot,
+
+volcano_plot_text <- function(x, plot_title) {
+
+significance_threshold <- 0.05
+  
+#This is nicely dealing with datasets with missing cathegories.
+test <- ifelse(x$PValue, "Non significant", "")
+test <- ifelse(x$PValue <0.05, "PValue < 0.05", test)
+test <- ifelse(x$logFC > 1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC > 1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+
+plotDat <- data.frame(x, Group=test)
+
+plotDat$PValue <- ifelse(plotDat$PValue < 1e-10, 1e-10, plotDat$PValue) 
+
+p <- ggplot(plotDat, aes(x = logFC, y=-log10(PValue), fill=Group, col = Group)) +
+  geom_point(aes(size=pop), alpha = 0.3, size=1)+
+  theme_light()+
+  scale_fill_manual(values=c("Non significant"="black", 
+                             "PValue < 0.05"="orange", 
+                             "logFC > abs(1)"="green4", 
+                             "PValue < 0.05 & logFC > abs(1)"="red"))+
+  scale_color_manual(values=c("Non significant"="black", 
+                              "PValue < 0.05"="orange", 
+                              "logFC > abs(1)"="green4", 
+                              "PValue < 0.05 & logFC > abs(1)"="red"))+
+  labs(title= plot_title)+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  theme(legend.text=element_text(size=12))+
+  theme(axis.text=element_text(size=12))+
+  theme(legend.title=element_blank())+
+  theme(axis.text=element_text(size=12))+
+  theme(axis.title = element_text(size=12))+
+  theme(legend.position="none")+
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())+
+  scale_y_continuous(breaks=c(0.0, 2.5, 5.0, 7.5, 10.0), labels=c("0","2.5", "5.0", "7.5", ">10"))
+  
+p
+
+}
+
+vol_M <- volcano_plot_text(DE_M, "Males")
+vol_F <- volcano_plot_text(DE_F, "Females")
+
+```
+  
+  
+```{r, fig.width=18, dev = "png", dev.args = list(type = "cairo-png")}
+
+vol_venn_plots <- plot_grid(vol_M, vol_F, venn_P, venn_FDR,
+          labels = c('A', 'B', 'C', 'D'),
+          axis = "lr",
+          align = "hv")
+
+ Sex_ns_labeled <- plot_grid(Sex_ns, labels = c('E'))
+
+ top_panels <- plot_grid(vol_venn_plots, Sex_ns_labeled,
+           rel_widths = c(1, 1),
+           axis = "b",
+          align = "v")
+
+ ph <- plot_grid(GO_pheatmap$gtable, labels = "F")
+ 
+ plot_grid(top_panels, ph, ncol = 2, rel_widths = c(1.5, 1))
+ 
+```
+
 
 # 10. R sessionInfo()
 
