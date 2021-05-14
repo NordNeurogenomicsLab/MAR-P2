@@ -85,7 +85,7 @@ scp -r kcichewicz@barbera.genomecenter.ucdavis.edu:/share/nordlab/users/kcichewi
 [1_R2_FastQC_report](./fastQC/1_S2_L002_R2_001_fastqc.html)
 
 [2_R1_FastQC_report](./fastQC/2_S10_L003_R1_001_fastqc.html)
-[2_R2_FastQC_report](./fastQC/2_S10_L003_R2_001_fastqc.html)
+[2_R2_FastQC_report](./fastQC/2_S10_L003_R2_001_fastqc.ht = )
 
 [3_R1_FastQC_report](./fastQC/3_S3_L002_R1_001_fastqc.html)
 [3_R2_FastQC_report](./fastQC/3_S3_L002_R2_001_fastqc.html)
@@ -1621,8 +1621,6 @@ write(file = "FDR05_Down_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.0
 
 write(file = "FDR2_genes.txt", dplyr::filter(glm.output.full_En, FDR < 0.2)$gene_name)
 
-
-
 ```
 
 
@@ -1690,7 +1688,7 @@ ml
 
 ```
 
-# 8. Sex-specific Differential expression
+# 8. Sex-stratified differential expression
 
 ```{r}
 
@@ -1829,8 +1827,517 @@ grid.arrange(p1, p2, ncol=2)
 
 ```
 
-# 9. Conclusions
+## 8.3 GO Males upregulated
+
+```{r}
+
+GO_analysis_FDR_03 <- function(DE_data, dir, stat, stat_val, topNodes_val) {
+  
+  ### Usage ###
+  
+  # DE_data <- DE data frame with gene_names (edgeR)
+  # dir <- "up", "down", "both"
+  # stat <- FDR or PValue
+  # stat_val <- e.g 0.05
+  # topNodes_val = 4675 - determin by running with low value first
+  
+library(topGO)
+  background.genes <- DE_data$gene_name
+  geneUniverse <- background.genes
+  
+  if(dir=="up"){
+  test.genes <- filter(DE_data, get(stat) < stat_val, logFC > 0)$gene_name
+  } else if (dir=="down"){
+    test.genes <- filter(DE_data, get(stat) < stat_val, logFC < 0)$gene_name
+  } else if (dir=="both"){
+    test.genes <- filter(DE_data, get(stat) < stat_val)$gene_name
+  } else {
+    print("Incorect fold change parameter")
+    stop()
+  }
+
+  genesOfInterest <- test.genes
+  geneList <- factor(as.integer(geneUniverse %in% genesOfInterest))
+  names(geneList) <- geneUniverse
+  myGOdata <- new("topGOdata", description="My project", ontology="BP", allGenes=geneList,  annot=annFUN.org,    mapping="org.Rn.eg.db", ID = "alias", nodeSize=5)
+  print(myGOdata)
+  
+resultFisher <- runTest(myGOdata, algorithm = "weight01", statistic = "fisher")
+#resultKS <- runTest(myGOdata, algorithm = "classic", statistic = "ks")
+#resultKS.elim <- runTest(myGOdata, algorithm = "elim", statistic = "ks")
+#classicKS = resultKS, elimKS = resultKS.elim, - add later
+
+allRes <- GenTable(myGOdata, classicFisher = resultFisher, orderBy = "classicFisher", topNodes = topNodes_val)
+
+#showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all')
+#nodes_plot <- recordPlot(showSigOfNodes(myGOdata, score(resultKS.elim), firstSigNodes = 5, useInfo = 'all'))
+
+#Building a df of DE genes belonging to top 20 GO BP caegories
+DE_genes_in_top_GO_cat <- function(r){
+ fisher.go <- allRes[r,1]
+ #print(allRes[x,c(1,2)])
+ fisher.ann.genes <- genesInTerm(myGOdata, whichGO=fisher.go)
+ df <- data.frame(GO.ID = allRes[r,c(1)], Term = allRes[r,c(2)], gene_name=intersect(as.character(fisher.ann.genes[[1]]), DE_data$gene_name))
+ df <- filter(df, gene_name %in% test.genes)
+ df
+}
+
+list(allRes, lapply(1:nrow(allRes), DE_genes_in_top_GO_cat))
+}
+
+```
+
+```{r}
+
+display_GO_enrichment <- function(input){
+df <- dplyr::filter(input[[1]], classicFisher < 0.05)
+input_DE_genes <- dplyr::filter(rbindlist(input[[2]]), GO.ID %in% df$GO.ID)
+
+# Calculate enrichment
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df <- arrange(df, -Enrichment)
+
+input_DE_genes <- arrange(input_DE_genes, factor(GO.ID, levels = df$GO.ID))
+
+list(
+input[[1]],
+input_DE_genes,
+datatable(df, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T)),
+datatable(input_DE_genes, rownames = FALSE, filter="top", options = list(pageLength = 15, scrollX=T))
+)
+
+}
+
+```
+
+```{r, cache=TRUE}
+
+DE_M_GO_up_P <- GO_analysis_FDR_03(DE_M, "up", "PValue", 0.05, 9044) 
+DE_M_GO_up_P_enr <- display_GO_enrichment(DE_M_GO_up_P)
+
+DE_M_GO_up_P_enr[[3]]
+DE_M_GO_up_P_enr[[4]]
+
+```
+
+## 8.4 GO Females upregulated
+
+```{r, cache=TRUE}
+
+DE_F_GO_up_P <- GO_analysis_FDR_03(DE_F, "up", "PValue", 0.05, 9044) 
+DE_F_GO_up_P_enr <- display_GO_enrichment(DE_F_GO_up_P)
+
+DE_F_GO_up_P_enr[[3]]
+DE_F_GO_up_P_enr[[4]]
+
+```
+
+## 8.5 GO Males downregulated
+
+```{r, cache=TRUE}
+DE_M_GO_down_P <- GO_analysis_FDR_03(DE_M, "down", "PValue", 0.05, 9044) 
+DE_M_GO_down_P_enr <- display_GO_enrichment(DE_M_GO_down_P)
+
+DE_M_GO_down_P_enr[[3]]
+DE_M_GO_down_P_enr[[4]]
+
+```
+
+
+## 8.6 GO Females downregulated
+
+```{r, cache=TRUE}
+
+DE_F_GO_down_P <- GO_analysis_FDR_03(DE_F, "down", "PValue", 0.05, 9044) 
+DE_F_GO_down_P_enr <- display_GO_enrichment(DE_F_GO_down_P)
+
+DE_F_GO_down_P_enr[[3]]
+DE_F_GO_down_P_enr[[4]]
+
+# save.image("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2/Session_5_13_21.RData")
+# load("G:/Shared drives/Nord Lab - Computational Projects/MAR-P2/Session_5_13_21.RData")
+
+```
+
+## 8.7 RPKM plots of some interesting GO term genes
+
+```{r, cache=TRUE}
+# RPKM box #
+rpkm_box_plot_sex <- function(d, x){
+# d <- rpkm.data_En2
+# x <- "Ldha"  
+  
+rpkm_test <- as.data.frame(reshape2::melt(d[x,]))
+colnames(rpkm_test) <- "RPKM"
+rpkm_test_w_info <- cbind(rpkm_test, "Condition" = metadata[,"Condition"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Sex" = metadata[,"Sex"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "RNA.isolation.batch" = metadata[,"RNA.isolation.batch"])
+rpkm_test_w_info <- cbind(rpkm_test_w_info, "Lane" = metadata[,"Lane"])
+rpkm_test_w_info$Sex_Condition <- as.character(paste0(rpkm_test_w_info$Sex, "_", rpkm_test_w_info$Condition)) 
+
+j_brew_colors <- brewer.pal(n = 8, name = "Paired")[c(2,6)]
+
+ggplot(rpkm_test_w_info, aes(x = Condition, y= RPKM, shape = Sex, group = Sex_Condition, colour=Condition))+
+  geom_jitter(size=2, alpha = 0.5, position = position_jitterdodge(jitter.width = 0.05))+
+  geom_boxplot(alpha=0, position = position_dodge(width=0.75))+
+  theme_bw()+
+  theme(axis.text.x=element_text(size=12, face="bold"))+
+  labs(title= x, x="")+
+  theme(plot.title = element_text(size = rel(2), hjust=0.5))+
+  scale_color_manual(values = j_brew_colors)+
+  scale_fill_manual(values = j_brew_colors)+
+  theme(legend.position = "bottom")
+
+}
+```
+
+### 8.7.1 Female Up immune genes
+```{r, fig.width=12, fig.height=4*3, cache=TRUE}
+
+genes <- dplyr::filter(DE_F_GO_up_P_enr[[2]], Term == "immune response")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl, nrow=3, ncol = 7,  top = "", layout_matrix = rbind(c(1:7), c(8:14), c(15:21)))
+ml
+
+```
+
+### 8.7.2 Female Up positive regulation of MAPK cascade
+```{r, fig.width=12, fig.height=4*2, cache=TRUE}
+
+genes <- dplyr::filter(DE_F_GO_up_P_enr[[2]], Term == "positive regulation of MAPK cascade")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl, top = "", layout_matrix = rbind(c(1:7), c(8:14)))
+ml
+
+```
+
+### 8.7.3 Female Up alpha-beta T cell differentiation
+
+```{r, fig.width=12, fig.height=4*1, cache=TRUE}
+
+genes <- dplyr::filter(DE_F_GO_up_P_enr[[2]], Term == "alpha-beta T cell differentiation")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl,  top = "", layout_matrix = rbind(c(1:7)))
+ml
+
+```
+
+### 8.7.4 Female Up response to lipopolysaccharide
+
+```{r, fig.width=12, fig.height=4*1, cache=TRUE}
+
+genes <- dplyr::filter(DE_F_GO_up_P_enr[[2]], Term == "response to lipopolysaccharide")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl, nrow=1, ncol = 7,  top = "", layout_matrix = rbind(c(1:7)))
+ml
+
+```
+
+### 8.7.5 Male Up neuron projection guidance
+
+```{r, fig.width=12, fig.height=4*2, cache=TRUE}
+
+genes <- dplyr::filter(DE_M_GO_up_P_enr[[2]], Term == "neuron projection guidance")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl, layout_matrix = rbind(c(1:7), c(8:14)))
+ml
+
+```
+
+### 8.7.6 Male Up axon guidance
+
+```{r, fig.width=12, fig.height=4*2, cache=TRUE}
+
+genes <- dplyr::filter(DE_M_GO_up_P_enr[[2]], Term == "axon guidance")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl,  top = "", layout_matrix = rbind(c(1:7), c(8:14)))
+ml
+
+```
+
+### 8.7.7 Male Up neuron migration
+
+```{r, fig.width=12, fig.height=4*2, cache=TRUE}
+
+genes <- dplyr::filter(DE_M_GO_up_P_enr[[2]], Term == "neuron migration")$gene_name
+
+#rpkm_box_plot_sex(rpkm.data_En2, genes[1])
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl,  top = "", layout_matrix = rbind(c(1:7), c(8:14)))
+ml
+
+```
+
+### 8.7.8 Female Down regulation of dopamine secretion
+
+```{r, fig.width=12, fig.height=4*1, cache=TRUE}
+
+genes <- dplyr::filter(DE_F_GO_down_P_enr[[2]], Term == "regulation of dopamine secretion")$gene_name
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl,  top = "", layout_matrix = rbind(c(1:7)))
+ml
+
+```
+
+
+### 8.7.9 Male Down T cell activation
+
+```{r, fig.width=12, fig.height=4*3, cache=TRUE}
+
+genes <- dplyr::filter(DE_M_GO_down_P_enr[[2]], Term == "T cell activation")$gene_name
+
+pl <- lapply(genes, function(x)
+       rpkm_box_plot_sex(rpkm.data_En2, x))
+
+
+ml <- marrangeGrob(pl, top = "", layout_matrix = rbind(c(1:7), c(8:14), c(15:21)))
+ml
+
+```
+
+### 8.7.10 GO terms heatmap - Work in progress
+
+```{r}
+
+m_up <- DE_M_GO_up_P_enr[[1]]
+f_up <- DE_F_GO_up_P_enr[[1]]
+m_down <- DE_M_GO_down_P_enr[[1]]
+f_down <- DE_F_GO_down_P_enr[[1]]
+
+# Calculates enrichment
+enr <- function(df){
+
+padding = 5
+df$Enrichment <- log2((df$Significant + padding)/(df$Expected + padding))
+df$GO.ID <- paste0(df$GO.ID, "_", df$Term)
+df
+
+}
+
+m_up <- enr(m_up)
+f_up <- enr(f_up)
+m_down <- enr(m_down)
+f_down <- enr(f_down)
+
+# Setting Enrichment to 0 if P > 0.05
+m_up$Enrichment <- ifelse(m_up$classicFisher > 0.05, 0, m_up$Enrichment)
+f_up$Enrichment <- ifelse(f_up$classicFisher > 0.05, 0, f_up$Enrichment)
+m_down$Enrichment <- ifelse(m_down$classicFisher > 0.05, 0, m_down$Enrichment)
+f_down$Enrichment <- ifelse(f_down$classicFisher > 0.05, 0, f_down$Enrichment)
+
+
+
+df1 <- merge(m_up[,c(1,7)], f_up[,c(1,7)], by = "GO.ID")
+df2 <- merge(m_down[,c(1,7)], f_down[,c(1,7)], by = "GO.ID")
+
+colnames(df1) <- c("GO.ID", "Males_Up", "Females_Up")
+colnames(df2) <- c("GO.ID", "Males_Down", "Females_Down")
+
+df <- merge(df1, df2) # Enrichment df 8966    5
+
+
+# Select significant GO terms
+
+sig_n = 10
+
+t_m_up <- dplyr::filter(m_up, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
+t_f_up <- dplyr::filter(f_up, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
+t_m_down <- dplyr::filter(m_down, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
+t_f_down <- dplyr::filter(f_down, classicFisher < 0.05, Enrichment > 0, Significant > sig_n)$GO.ID
+
+sig_terms <- unique(c(t_m_up, t_f_up, t_m_down, t_f_down))
+
+# Pheatmap
+
+df_filtered <- dplyr::filter(df, GO.ID %in% sig_terms)
+
+#  
+
+rownames(df_filtered) <- df_filtered$GO.ID
+df_filtered$GO.ID <- NULL
+
+library(pheatmap)
+
+# GO terms manual curation:
+
+terms <- c(
+ "GO:0000165_MAPK cascade",                               
+ "GO:0001505_regulation of neurotransmitter levels",      
+ "GO:0001578_microtubule bundle formation",               
+ #"GO:0002831_regulation of response to biotic stimulu...",
+ #"GO:0003073_regulation of systemic arterial blood pr...",
+ "GO:0006955_immune response",                            
+ "GO:0007204_positive regulation of cytosolic calcium...",
+ "GO:0007389_pattern specification process",              
+ "GO:0007411_axon guidance",                              
+"GO:0009617_response to bacterium",                      
+"GO:0009749_response to glucose",                        
+"GO:0010469_regulation of signaling receptor activit...",
+"GO:0010976_positive regulation of neuron projection...",
+#"GO:0019233_sensory perception of pain",                 
+"GO:0042110_T cell activation",                          
+"GO:0042391_regulation of membrane potential",           
+"GO:0043524_negative regulation of neuron apoptotic ...",
+"GO:0051384_response to glucocorticoid",                 
+"GO:0051924_regulation of calcium ion transport",        
+"GO:0055085_transmembrane transport",                    
+"GO:0097485_neuron projection guidance",                 
+"GO:1902679_negative regulation of RNA biosynthetic ..."
+)
+
+
+x <- as.matrix(df_filtered[rownames(df_filtered) %in% terms, ])
+paletteLength = 100
+
+myBreaks <- c(0,seq(max(x)/paletteLength, max(x), length.out=floor(paletteLength/2)))
+myColor <- colorRampPalette(c("#9E0041", "#FEBE6E", "white"))(paletteLength)
+
+# It's not printed out to increase the clarity of this report
+pheatmap(x, 
+         clustering_distance_rows="correlation", 
+         cluster_rows = T, 
+         cluster_cols = F, 
+         legend = T, 
+         fontsize_row  = 9, 
+         color = rev(myColor), main = "")
+
+
+```
+
+
+
+# 9. Conclusions and a summary figure
+
+```{r}
+
+# Volcano Plot
+
+### Volcano plot,
+
+volcano_plot_text <- function(x) {
+
+significance_threshold <- 0.05
+  
+#This is nicely dealing with datasets with missing cathegories.
+test <- ifelse(x$PValue, "Non significant", "")
+test <- ifelse(x$PValue <0.05, "PValue < 0.05", test)
+test <- ifelse(x$logFC > 1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1, "logFC > abs(1)", test)
+test <- ifelse(x$logFC > 1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+test <- ifelse(x$logFC < -1 & x$PValue <0.05, "PValue < 0.05 & logFC > abs(1)", test)
+
+plotDat <- data.frame(x, Group=test)
+
+p <- ggplot(plotDat, aes(x = logFC, y=-log10(PValue), fill=Group, col = Group)) +
+  geom_point(aes(size=pop), alpha = 0.7, size=1)+
+  theme_light()+
+  scale_fill_manual(values=c("Non significant"="black", "PValue < 0.05"="orange", "logFC > abs(1)"="green4", "PValue < 0.05 & logFC > abs(1)"="red"))+
+  scale_color_manual(values=c("Non significant"="black", "PValue < 0.05"="orange", "logFC > abs(1)"="green4", "PValue < 0.05 & logFC > abs(1)"="red"))+
+  labs(title= "")+
+  theme(plot.title = element_text(size = rel(2), hjust=0.5),
+  legend.text=element_text(size=16),
+  legend.title=element_blank(),
+  axis.text=element_text(size=14),
+  axis.title = element_text(size=14, face = "bold"),
+  panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+  legend.position="bottom")
+
+p
+
+}
+
+A <- volcano_plot_text(glm.output.full_En)
+
+#################### Numbers of DE genes ############################
+
+
+up_P <- nrow(dplyr::filter(glm.output.full_En, PValue < 0.05, logFC > 0))
+down_P <- nrow(dplyr::filter(glm.output.full_En, PValue < 0.05, logFC < 0))
+
+up_FDR <- nrow(dplyr::filter(glm.output.full_En, FDR < 0.05, logFC > 0))
+down_FDR <- nrow(dplyr::filter(glm.output.full_En, FDR < 0.05, logFC < 0))
+
+DE_df_n <- data.frame("Upregulated" = c(up_P, up_FDR), 
+           "Downregulated" = c(down_P, down_FDR), 
+           "Stat" = c("P", "FDR"))
+
+DE_df_n_melted <- reshape2::melt(DE_df_n)
+DE_df_n_melted$Var_Stat <- paste0(DE_df_n_melted$variable, "_", DE_df_n_melted$Stat)
+
+
+B <- ggplot(DE_df_n_melted, aes(fill=Var_Stat, x=variable, group=variable, y=value))+
+  geom_bar(position = "dodge",  stat="identity", color="black")+
+  theme_bw()+
+  scale_fill_manual(values=c("#1F78B4", "#62a0ca", "#E31A1C", "#eb5e60"))+
+  theme(legend.title=element_blank())+
+  labs(title="Number of DE genes with P < 0.05 and FDR < 0.05", x="", y="")+
+  theme(plot.title = element_text(size = rel(1.2), hjust=0.5))+
+  geom_text(aes(label=value), position=position_dodge(width=0.9), hjust= 1, vjust = -0.8)+
+  scale_x_discrete(limits = rev(levels(DE_df_n_melted$variable)))+
+  theme(panel.border = element_blank(),
+        #legend.key = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(angle = 90, size = 14, face = "bold", 
+                                   hjust = 0.5, vjust = -4),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())+
+  theme(legend.position="bottom")
+
+
+
+
+plot_grid(A, B, labels = c('A', 'B'))
+
+```
+
 * Differential expression is weak overall
+* There is no sample clustering in MDA or PCA
 * Females DE is slightly greater than males
 * Males vs Females DE is distinctively different - discuss this with Alex
 * GO BP...

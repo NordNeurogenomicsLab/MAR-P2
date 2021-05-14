@@ -34,17 +34,9 @@ Formula
 Hmisc
 biomaRt
 cowplot
-doBy
-RSQLite
-refGenome
 graph
 GO.db
 SparseM
 topGO
 org.Rn.eg.db
 pander
-RBGL
-reshape
-gtools
-xtable
-Vennerable
